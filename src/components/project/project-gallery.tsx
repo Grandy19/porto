@@ -12,12 +12,9 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
-  const [direction, setDirection] = useState(1);
 
   // Responsive items per page
   useEffect(() => {
-    setIsMounted(true);
     const handleResize = () => {
       if (window.innerWidth < 768) setItemsPerPage(1);
       else if (window.innerWidth < 1024) setItemsPerPage(2);
@@ -32,18 +29,16 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
   const maxIndex = Math.max(0, gallery.length - itemsPerPage);
 
   const handleNext = useCallback(() => {
-    setDirection(1);
     setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
   }, [maxIndex]);
 
   const handlePrev = useCallback(() => {
-    setDirection(-1);
     setCurrentIndex((prev) => Math.max(prev - 1, 0));
   }, []);
 
   // Swipe handlers for inline gallery
-  const handleDragEnd = (e: any, { offset, velocity }: any) => {
-    const swipe = offset.x;
+  const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number; y: number } }) => {
+    const swipe = info.offset.x;
     if (swipe < -50) handleNext();
     else if (swipe > 50) handlePrev();
   };
@@ -85,26 +80,7 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
 
   if (!gallery || gallery.length === 0) return null;
 
-  // Determine visible items for inline gallery
-  const visibleItems = isMounted ? gallery.slice(currentIndex, currentIndex + itemsPerPage) : gallery.slice(0, 3);
-
-  // Animation variants for slider
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 50 : -50,
-      opacity: 0
-    }),
-    center: {
-      z: 1,
-      x: 0,
-      opacity: 1
-    },
-    exit: (direction: number) => ({
-      z: 0,
-      x: direction < 0 ? 50 : -50,
-      opacity: 0
-    })
-  };
+  const maxDisplayCount = Math.max(1, gallery.length - itemsPerPage + 1);
 
   return (
     <section className="relative w-full">
@@ -115,110 +91,84 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
         <ScrollReveal>
           <div className="flex flex-col gap-12">
             
-            {/* Header & Controls */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
-              <div className="flex flex-col gap-4">
-                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                  Design <span className="text-zinc-400">Gallery</span>
-                </h2>
-              </div>
-
-              {/* Custom Premium Navigation (Desktop) */}
-              {gallery.length > itemsPerPage && (
-                <div className="hidden sm:flex items-center gap-6 bg-white/5 border border-white/10 hover:border-white/20 hover:-translate-y-[2px] transition-all duration-300 rounded-full p-2 pr-6 pl-6 backdrop-blur-sm">
-                  <button 
-                    onClick={handlePrev}
-                    disabled={currentIndex === 0}
-                    className="flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white transition-all disabled:opacity-30 disabled:hover:text-zinc-400 disabled:cursor-not-allowed group"
-                  >
-                    <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                    Previous
-                  </button>
-                  
-                  <span className="text-sm font-mono text-zinc-500 min-w-[60px] text-center">
-                    {String(currentIndex + 1).padStart(2, '0')} / {String(gallery.length - itemsPerPage + 1).padStart(2, '0')}
-                  </span>
-                  
-                  <button 
-                    onClick={handleNext}
-                    disabled={currentIndex === maxIndex}
-                    className="flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white transition-all disabled:opacity-30 disabled:hover:text-zinc-400 disabled:cursor-not-allowed group"
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </button>
-                </div>
-              )}
+            {/* Header */}
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight text-zinc-50 md:text-3xl">
+                <span className="text-zinc-500">Design</span> Gallery
+              </h2>
             </div>
 
-            {/* Gallery Grid */}
-            <div className="relative overflow-hidden -mx-4 px-4 sm:mx-0 sm:px-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <AnimatePresence initial={false} custom={direction} mode="popLayout">
-                  {visibleItems.map((image, idx) => {
-                    // Unique key combining actual array index allows Framer Motion to track identity correctly
-                    const actualIndex = currentIndex + idx;
-                    return (
-                      <m.div
-                        key={`${image.src}-${actualIndex}`}
-                        custom={direction}
-                        variants={slideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{
-                          x: { type: "spring", stiffness: 300, damping: 30 },
-                          opacity: { duration: 0.3 }
-                        }}
-                        drag="x"
-                        dragConstraints={{ left: 0, right: 0 }}
-                        dragElastic={1}
-                        onDragEnd={handleDragEnd}
-                        onClick={() => setLightboxIndex(actualIndex)}
-                        role="button"
-                        tabIndex={0}
-                        className="group relative aspect-video w-full rounded-[24px] overflow-hidden bg-[#111111] border border-white/10 cursor-pointer touch-pan-y flex items-center justify-center"
-                      >
-                        <Image
-                          src={image.src}
-                          alt={image.alt}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          className="object-cover transition-all duration-[450ms] ease-[cubic-bezier(.22,.61,.36,1)] grayscale opacity-85 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-[1.02]"
-                        />
-                        {/* Subtle inner shadow for premium feel */}
-                        <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[24px] pointer-events-none group-hover:ring-white/20 transition-all duration-500" />
-                      </m.div>
-                    );
-                  })}
-                </AnimatePresence>
-              </div>
+            {/* Continuous Smooth Slider Track */}
+            <div className="relative overflow-hidden -mx-3 px-3">
+              <m.div
+                animate={{
+                  x: `-${currentIndex * (100 / itemsPerPage)}%`,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 220,
+                  damping: 28,
+                  mass: 0.6,
+                }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={0.12}
+                onDragEnd={handleDragEnd}
+                className="flex cursor-grab active:cursor-grabbing touch-pan-y"
+              >
+                {gallery.map((image, actualIndex) => (
+                  <div
+                    key={`${image.src}-${actualIndex}`}
+                    style={{ width: `${100 / itemsPerPage}%` }}
+                    className="shrink-0 px-3"
+                  >
+                    <div
+                      onClick={() => setLightboxIndex(actualIndex)}
+                      role="button"
+                      tabIndex={0}
+                      className="group relative aspect-video w-full rounded-[24px] overflow-hidden bg-[#111111] border border-white/10 cursor-pointer flex items-center justify-center transition-all duration-300 hover:border-white/25 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]"
+                    >
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        className="object-cover transition-all duration-500 ease-out grayscale opacity-85 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-[1.03]"
+                      />
+                      {/* Subtle inner shadow for premium feel */}
+                      <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[24px] pointer-events-none group-hover:ring-white/20 transition-all duration-500" />
+                    </div>
+                  </div>
+                ))}
+              </m.div>
             </div>
 
-            {/* Mobile Navigation (Centered Below Grid) */}
+            {/* Centered Navigation Controls (Mobile & Desktop) */}
             {gallery.length > itemsPerPage && (
-              <div className="flex sm:hidden justify-center mt-2">
-                <div className="flex items-center gap-6 bg-white/5 border border-white/10 transition-all duration-300 rounded-full p-2 pr-6 pl-6 backdrop-blur-sm">
+              <div className="flex justify-center mt-2 sm:mt-4">
+                <div className="flex items-center gap-3">
                   <button 
                     onClick={handlePrev}
                     disabled={currentIndex === 0}
-                    className="flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white transition-all disabled:opacity-30 disabled:hover:text-zinc-400 disabled:cursor-not-allowed group"
+                    className="w-10 h-10 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all active:scale-95 hover:scale-105 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md disabled:opacity-30 disabled:hover:text-zinc-300 disabled:cursor-not-allowed"
+                    aria-label="Previous image"
                   >
-                    <ChevronLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                    Previous
+                    <ChevronLeft className="w-4 h-4" />
                   </button>
-                  
-                  <span className="text-sm font-mono text-zinc-500 min-w-[60px] text-center">
-                    {String(currentIndex + 1).padStart(2, '0')} / {String(gallery.length - itemsPerPage + 1).padStart(2, '0')}
-                  </span>
-                  
+
+                  <div className="w-24 h-10 flex items-center justify-center gap-2 font-mono text-xs text-zinc-400 bg-zinc-900/90 border border-white/15 rounded-full shadow-xl select-none backdrop-blur-md tabular-nums flex-shrink-0">
+                    <span className="w-4 text-center text-white font-bold">{String(currentIndex + 1).padStart(2, '0')}</span>
+                    <span className="text-zinc-600">/</span>
+                    <span className="w-4 text-center">{String(maxDisplayCount).padStart(2, '0')}</span>
+                  </div>
+
                   <button 
                     onClick={handleNext}
                     disabled={currentIndex === maxIndex}
-                    className="flex items-center gap-2 text-sm font-medium text-zinc-400 hover:text-white transition-all disabled:opacity-30 disabled:hover:text-zinc-400 disabled:cursor-not-allowed group"
+                    className="w-10 h-10 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all active:scale-95 hover:scale-105 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md disabled:opacity-30 disabled:hover:text-zinc-300 disabled:cursor-not-allowed"
+                    aria-label="Next image"
                   >
-                    Next
-                    <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    <ChevronRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -281,13 +231,13 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
 
                     {/* Caption Text Content seamlessly integrated */}
                     <div className="absolute inset-x-0 bottom-0 z-20 px-6 py-5 sm:px-8 sm:py-6 flex items-end">
-                      {/* Judul: Besar, Bold, Putih */}
+                      {/* Judul: Diperkecil agar lebih proporsional di mobile */}
                       <m.h3 
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ delay: 0.1, duration: 0.25 }}
-                        className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                        className="text-sm xs:text-base sm:text-lg md:text-xl font-bold tracking-tight text-white leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
                       >
                         {gallery[lightboxIndex].alt}
                       </m.h3>
@@ -304,24 +254,24 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
                   >
                     <button
                       onClick={handleLightboxPrev}
-                      className="w-11 h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all hover:scale-105 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md"
+                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md"
                       aria-label="Previous design"
                     >
-                      <ChevronLeft className="w-5 h-5" />
+                      <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
 
-                    <div className="w-28 h-11 flex items-center justify-center gap-2 font-mono text-sm text-zinc-400 bg-zinc-900/90 border border-white/15 rounded-full shadow-xl select-none backdrop-blur-md tabular-nums flex-shrink-0">
-                      <span className="w-5 text-center text-white font-bold">{String(lightboxIndex + 1).padStart(2, '0')}</span>
+                    <div className="w-24 sm:w-28 h-10 sm:h-11 flex items-center justify-center gap-2 font-mono text-xs sm:text-sm text-zinc-400 bg-zinc-900/90 border border-white/15 rounded-full shadow-xl select-none backdrop-blur-md tabular-nums flex-shrink-0">
+                      <span className="w-4 sm:w-5 text-center text-white font-bold">{String(lightboxIndex + 1).padStart(2, '0')}</span>
                       <span className="text-zinc-600">/</span>
-                      <span className="w-5 text-center">{String(gallery.length).padStart(2, '0')}</span>
+                      <span className="w-4 sm:w-5 text-center">{String(gallery.length).padStart(2, '0')}</span>
                     </div>
 
                     <button
                       onClick={handleLightboxNext}
-                      className="w-11 h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all hover:scale-105 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md"
+                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md"
                       aria-label="Next design"
                     >
-                      <ChevronRight className="w-5 h-5" />
+                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                   </m.div>
 

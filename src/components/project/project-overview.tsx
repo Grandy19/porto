@@ -12,7 +12,7 @@ export function ProjectOverview({ project }: { project: ProjectData }) {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
             {/* Left Column - Section Title */}
             <div className="lg:col-span-4">
-              <h2 className="text-2xl font-bold tracking-tight text-zinc-50 md:text-3xl">
+              <h2 className="text-3xl font-bold tracking-tight text-zinc-50 md:text-3xl">
                 <span className="text-zinc-500">Project</span> Overview
               </h2>
             </div>
