@@ -239,18 +239,18 @@ export function TechnicalExpertise() {
                           {card.title}
                         </h3>
                         
-                        <p className="mt-1 text-xs xs:text-sm leading-relaxed text-zinc-300">
+                        <p className="mt-1.5 text-xs xs:text-sm leading-relaxed text-zinc-300">
                           {card.description}
                         </p>
                       </div>
 
-                      {/* Divider Line with Tight, Balanced Spacing */}
-                      <div className="my-3.5 h-[1px] w-full bg-white/10" />
+                      {/* Divider Line with Pleasant Balanced Spacing */}
+                      <div className="mt-5 mb-4 h-[1px] w-full bg-white/10" />
 
                       {/* Skills List */}
-                      <ul className="grid grid-cols-1 gap-2">
+                      <ul className="grid grid-cols-1 gap-2.5">
                         {card.skills.map((skill, j) => (
-                          <li key={j} className="flex items-center gap-2 text-xs xs:text-sm text-zinc-200">
+                          <li key={j} className="flex items-center gap-2.5 text-xs xs:text-sm text-zinc-200">
                             <span className="h-[4px] w-[4px] rounded-full bg-zinc-300 flex-shrink-0" />
                             <span className="truncate">{skill}</span>
                           </li>
