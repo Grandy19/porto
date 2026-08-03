@@ -219,7 +219,7 @@ export function TechnicalExpertise() {
                         stiffness: 350,
                         damping: 28,
                       }}
-                      className="relative flex flex-col justify-between w-full min-h-[390px] xs:min-h-[410px] rounded-[22px] p-5 xs:p-6 bg-[#121216] border border-white/25 shadow-[0_20px_50px_rgba(0,0,0,0.95),0_0_25px_rgba(255,255,255,0.05)] select-none"
+                      className="relative flex flex-col w-full rounded-[22px] p-5 xs:p-6 bg-[#121216] border border-white/25 shadow-[0_20px_50px_rgba(0,0,0,0.95),0_0_25px_rgba(255,255,255,0.05)] select-none"
                     >
                       {/* Top Silver Luminous Accent Rim */}
                       <div className="absolute top-0 inset-x-8 h-[2.5px] rounded-b-full bg-zinc-200 shadow-[0_0_14px_rgba(255,255,255,0.5)]" />
@@ -244,19 +244,18 @@ export function TechnicalExpertise() {
                         </p>
                       </div>
 
+                      {/* Divider Line with Tight, Balanced Spacing */}
+                      <div className="my-3.5 h-[1px] w-full bg-white/10" />
+
                       {/* Skills List */}
-                      <div className="mt-auto pt-4">
-                        <div className="mb-3 h-[1px] w-full bg-white/10" />
-                        
-                        <ul className="grid grid-cols-1 gap-2">
-                          {card.skills.map((skill, j) => (
-                            <li key={j} className="flex items-center gap-2 text-xs xs:text-sm text-zinc-200">
-                              <span className="h-[4px] w-[4px] rounded-full bg-zinc-300 flex-shrink-0" />
-                              <span className="truncate">{skill}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                      <ul className="grid grid-cols-1 gap-2">
+                        {card.skills.map((skill, j) => (
+                          <li key={j} className="flex items-center gap-2 text-xs xs:text-sm text-zinc-200">
+                            <span className="h-[4px] w-[4px] rounded-full bg-zinc-300 flex-shrink-0" />
+                            <span className="truncate">{skill}</span>
+                          </li>
+                        ))}
+                      </ul>
 
                     </m.div>
                   );
