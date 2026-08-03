@@ -12,9 +12,11 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Responsive items per page
   useEffect(() => {
+    setIsMounted(true);
     const handleResize = () => {
       if (window.innerWidth < 768) setItemsPerPage(1);
       else if (window.innerWidth < 1024) setItemsPerPage(2);
