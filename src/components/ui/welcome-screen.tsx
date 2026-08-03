@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef } from 'react';
-import { motion as m, AnimatePresence } from 'framer-motion';
+import React, { useState, useCallback } from 'react';
+import { motion as m, AnimatePresence, useMotionValue, useSpring, useMotionTemplate } from 'framer-motion';
 
 interface WelcomeScreenProps {
   onStart: () => void;
@@ -9,7 +9,19 @@ interface WelcomeScreenProps {
 
 export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
   const [isExiting, setIsExiting] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Smooth mouse coordinates for ambient white spotlight (Linear / Apple / Vercel style)
+  const mouseX = useMotionValue(typeof window !== 'undefined' ? window.innerWidth / 2 : 500);
+  const mouseY = useMotionValue(typeof window !== 'undefined' ? window.innerHeight / 2 : 500);
+
+  const smoothMouseX = useSpring(mouseX, { damping: 35, stiffness: 200 });
+  const smoothMouseY = useSpring(mouseY, { damping: 35, stiffness: 200 });
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const { clientX, clientY } = e;
+    mouseX.set(clientX);
+    mouseY.set(clientY);
+  }, [mouseX, mouseY]);
 
   const handleEnter = () => {
     if (isExiting) return;
@@ -29,45 +41,100 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
+          onMouseMove={handleMouseMove}
           className="pointer-events-auto absolute inset-0 z-[200] flex flex-col items-center justify-center overflow-hidden bg-[#09090B]"
         >
-          {/* 1. Native 60 FPS Video Background (Stationary & Hardware-Accelerated) */}
-          <div className="pointer-events-none absolute inset-0 h-full w-full overflow-hidden">
-            <video
-              ref={videoRef}
-              src="/vid.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              className="h-full w-full object-cover"
+          {/* 1. Deep Black Base Layer */}
+          <div className="pointer-events-none absolute inset-0 bg-[#09090B]" />
+
+          {/* 2. Pure Monochrome White Aurora Blobs (Slow, Infinite 20-28s, 60 FPS) */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden">
+            {/* White Ambient Blob 1 (Top-Left / Center) */}
+            <m.div
+              animate={{
+                x: [-30, 50, -20, -30],
+                y: [-25, 35, -45, -25],
+                scale: [1, 1.12, 0.96, 1],
+                opacity: [0.04, 0.07, 0.035, 0.04],
+              }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              className="absolute -left-[10%] -top-[10%] h-[650px] w-[650px] rounded-full bg-white blur-[140px] will-change-transform sm:h-[900px] sm:w-[900px] sm:blur-[180px]"
+            />
+
+            {/* White Ambient Blob 2 (Bottom-Right) */}
+            <m.div
+              animate={{
+                x: [40, -35, 30, 40],
+                y: [30, -35, 20, 30],
+                scale: [1.08, 0.94, 1.15, 1.08],
+                opacity: [0.035, 0.065, 0.03, 0.035],
+              }}
+              transition={{
+                duration: 28,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              className="absolute -bottom-[15%] -right-[10%] h-[600px] w-[600px] rounded-full bg-white blur-[150px] will-change-transform sm:h-[850px] sm:w-[850px] sm:blur-[190px]"
+            />
+
+            {/* White Ambient Blob 3 (Center / Top-Right) */}
+            <m.div
+              animate={{
+                x: [-20, 30, -30, -20],
+                y: [25, -25, 25, 25],
+                scale: [0.95, 1.1, 0.98, 0.95],
+                opacity: [0.025, 0.05, 0.03, 0.025],
+              }}
+              transition={{
+                duration: 22,
+                repeat: Infinity,
+                ease: 'easeInOut',
+              }}
+              className="absolute left-[35%] top-[15%] h-[550px] w-[550px] rounded-full bg-white blur-[130px] will-change-transform sm:h-[750px] sm:w-[750px] sm:blur-[160px]"
             />
           </div>
 
-          {/* 2. High-Performance Dark Tint Overlay */}
+          {/* 3. Subtle 3% Opacity Architectural Grid */}
           <div
-            className="pointer-events-none absolute inset-0 z-10"
-            style={{ backgroundColor: 'rgba(9, 9, 11, 0.82)' }}
-          />
-
-          {/* 3. Static Subtle Ambient Glow */}
-          <div
-            className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/[0.04] blur-[80px]"
-          />
-
-          {/* 4. Static Grain Texture */}
-          <div className="pointer-events-none absolute inset-0 z-20 bg-[url('/noise.svg')] bg-repeat opacity-[0.025]" />
-
-          {/* 5. Static Vignette */}
-          <div
-            className="pointer-events-none absolute inset-0 z-20 opacity-80"
+            className="pointer-events-none absolute inset-0 z-10 opacity-[0.03]"
             style={{
-              background: 'radial-gradient(ellipse at center, transparent 40%, rgba(9,9,11,0.6) 80%, #09090B 100%)',
+              backgroundImage: `
+                linear-gradient(to right, rgba(255, 255, 255, 1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 1) 1px, transparent 1px)
+              `,
+              backgroundSize: '48px 48px',
             }}
           />
 
-          {/* Fixed Centered Foreground Content (No cursor sway / parallax) */}
+          {/* 4. Soft Pure White Interactive Spotlight Following Cursor */}
+          <m.div
+            className="pointer-events-none absolute inset-0 z-15"
+            style={{
+              background: useMotionTemplate`radial-gradient(600px circle at ${smoothMouseX}px ${smoothMouseY}px, rgba(255, 255, 255, 0.05), transparent 80%)`,
+            }}
+          />
+
+          {/* 5. Static Noise Texture Layer (~2% Opacity) */}
+          <div
+            className="pointer-events-none absolute inset-0 z-20 opacity-[0.02] mix-blend-screen"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            }}
+          />
+
+          {/* 6. Gentle Cinematic Vignette */}
+          <div
+            className="pointer-events-none absolute inset-0 z-25 opacity-90"
+            style={{
+              background: 'radial-gradient(circle at center, transparent 35%, rgba(9,9,11,0.5) 75%, #09090B 100%)',
+            }}
+          />
+
+          {/* 7. Centered Foreground Content */}
           <div className="relative z-50 flex flex-col items-center justify-center text-center">
             {/* GRANDY Title */}
             <m.h1
