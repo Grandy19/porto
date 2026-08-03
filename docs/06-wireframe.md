@@ -1,14 +1,16 @@
 # 06. LOW-FIDELITY WIREFRAMES & STRUCTURAL LAYOUT (REVISED)
 
-Dokumen ini mendefinisikan kerangka struktural (*structural blueprint*) untuk elemen antarmuka, mengacu pada struktur *Homepage Flow* terbaru yang memadukan kehangatan personal dan ketegasan rekayasa teknis.
+Dokumen ini mendefinisikan kerangka struktural (_structural blueprint_) untuk elemen antarmuka, mengacu pada struktur _Homepage Flow_ terbaru yang memadukan kehangatan personal dan ketegasan rekayasa teknis.
 
 ---
 
 ## 1. Global Flow & Navigation
+
 **Alur Homepage (Scroll Linier)**:
 `Navbar` $\rightarrow$ `Hero (100vh)` $\rightarrow$ `Infinite Marquee` $\rightarrow$ `Selected Projects` $\rightarrow$ `About Me` $\rightarrow$ `Engineering Journey (Teaser)` $\rightarrow$ `Contact` $\rightarrow$ `Footer`.
 
 ### Sticky Glassmorphic Header
+
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
 │ [Logo: GA]           [Home]  [About]  [Projects]  [Contact]            │
@@ -21,7 +23,7 @@ Dokumen ini mendefinisikan kerangka struktural (*structural blueprint*) untuk el
 
 ## 2. Hero Section (`100vh Fullscreen`) & Infinite Marquee
 
-Komposisi 70% identitas personal (Rique) & 30% ketegasan *engineering* (Linear/Vercel).
+Komposisi 70% identitas personal (Rique) & 30% ketegasan _engineering_ (Linear/Vercel).
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -91,7 +93,7 @@ Komposisi 70% identitas personal (Rique) & 30% ketegasan *engineering* (Linear/V
 
 ## 5. Engineering Journey Section (`max-w-4xl`)
 
-Seksi baru di *homepage* untuk memperkenalkan *Signature Experience* (Alur Berpikir 7-Tahap) sebelum user mengeklik *deep-dive* di proyek, memastikan audiens memahami metodologi Grandy.
+Seksi baru di _homepage_ untuk memperkenalkan _Signature Experience_ (Alur Berpikir 7-Tahap) sebelum user mengeklik _deep-dive_ di proyek, memastikan audiens memahami metodologi Grandy.
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
