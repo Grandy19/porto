@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion as m, AnimatePresence } from 'framer-motion';
 import { engine } from './audio-engine';
-import { VolumeX } from 'lucide-react';
 
 interface LegoPreloaderProps {
   onComplete: () => void;
@@ -77,7 +76,6 @@ interface BrickData {
 export function LegoPreloader({ onComplete }: LegoPreloaderProps) {
   const [stage, setStage] = useState<LegoStage>('falling');
   const [settledCount, setSettledCount] = useState(0);
-  const [isMuted, setIsMuted] = useState(false);
 
   // Generate exact pixel coordinates for all Lego bricks
   const bricks = useMemo<BrickData[]>(() => {
@@ -138,11 +136,7 @@ export function LegoPreloader({ onComplete }: LegoPreloaderProps) {
     engine.playAmbient();
   }, []);
 
-  const toggleSound = () => {
-    const nextMuted = !isMuted;
-    setIsMuted(nextMuted);
-    engine.setEnabled(!nextMuted);
-  };
+
 
   // Precise Audio Synchronization with Falling Bricks (1:1 Touchdown Timing)
   useEffect(() => {
@@ -341,19 +335,6 @@ export function LegoPreloader({ onComplete }: LegoPreloaderProps) {
         </AnimatePresence>
 
       </div>
-
-      {/* Bottom Left: Audio / Sound Toggle Button ('N' / Volume Icon) */}
-      <button
-        onClick={toggleSound}
-        className="fixed bottom-6 left-6 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-zinc-900/80 text-xs font-semibold text-white/90 backdrop-blur-md transition-all hover:scale-110 hover:border-white/40 hover:bg-zinc-800 active:scale-95"
-        title={isMuted ? "Unmute Sound" : "Mute Sound"}
-      >
-        {isMuted ? (
-          <VolumeX className="h-4 w-4 text-zinc-400" />
-        ) : (
-          <span className="font-mono text-xs font-bold tracking-tighter">N</span>
-        )}
-      </button>
 
     </div>
   );
