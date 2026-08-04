@@ -34,6 +34,7 @@ const emptySubscribe = () => () => {};
 
 export function ExperienceBeyondCode() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [direction, setDirection] = useState<number>(0);
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const mounted = useSyncExternalStore(
@@ -42,8 +43,14 @@ export function ExperienceBeyondCode() {
     () => false
   );
 
+  const handleOpenLightbox = (index: number) => {
+    setDirection(0);
+    setLightboxIndex(index);
+  };
+
   const handleLightboxNext = useCallback(() => {
     if (lightboxIndex !== null) {
+      setDirection(1);
       setLightboxIndex((prev) =>
         prev !== null ? (prev + 1) % experiences.length : 0
       );
@@ -52,6 +59,7 @@ export function ExperienceBeyondCode() {
 
   const handleLightboxPrev = useCallback(() => {
     if (lightboxIndex !== null) {
+      setDirection(-1);
       setLightboxIndex((prev) =>
         prev !== null ? (prev - 1 + experiences.length) % experiences.length : 0
       );
@@ -174,7 +182,7 @@ export function ExperienceBeyondCode() {
                     className="h-full w-full overflow-hidden rounded-[20px] shadow-2xl sm:rounded-[24px]"
                   >
                     <div
-                      onClick={() => setLightboxIndex(idx)}
+                      onClick={() => handleOpenLightbox(idx)}
                       className="group relative h-full w-full cursor-pointer overflow-hidden rounded-[20px] border border-white/15 bg-zinc-900 select-none sm:rounded-[24px]"
                     >
                       {/* Background Card Image - Sharp Monochrome by default, Colorful on hover */}
@@ -286,63 +294,126 @@ export function ExperienceBeyondCode() {
                   className="relative z-10 my-auto flex w-full max-w-lg flex-col items-center gap-4 sm:max-w-3xl sm:gap-5 lg:max-w-4xl"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  {/* Photo-First Editorial Card */}
+                  {/* Photo-First Editorial Card with Directional Smooth Slide Transition */}
                   <div className="xs:aspect-[3/4] xs:rounded-[24px] relative aspect-[4/5] w-full overflow-hidden rounded-[20px] border border-white/15 bg-zinc-950 shadow-[0_25px_80px_rgba(0,0,0,0.95)] sm:aspect-video sm:rounded-[28px]">
-                    <Image
-                      src={experiences[lightboxIndex].image}
-                      alt={experiences[lightboxIndex].title}
-                      fill
-                      priority
-                      sizes="(max-width: 640px) 95vw, (max-width: 768px) 100vw, 1200px"
-                      style={{
-                        objectPosition:
-                          experiences[lightboxIndex].imagePosition || '50% 50%',
-                        transform:
-                          experiences[lightboxIndex].imageTransform || 'none',
-                      }}
-                      className="object-cover"
-                    />
+                    <AnimatePresence
+                      custom={direction}
+                      initial={false}
+                      mode="popLayout"
+                    >
+                      <m.div
+                        key={lightboxIndex}
+                        custom={direction}
+                        variants={{
+                          enter: (dir: number) => ({
+                            x: dir === 0 ? 0 : dir > 0 ? 70 : -70,
+                            opacity: 0,
+                            scale: 0.98,
+                          }),
+                          center: {
+                            x: 0,
+                            opacity: 1,
+                            scale: 1,
+                            transition: {
+                              x: {
+                                type: 'spring',
+                                stiffness: 340,
+                                damping: 32,
+                              },
+                              opacity: { duration: 0.28 },
+                              scale: { duration: 0.28 },
+                            },
+                          },
+                          exit: (dir: number) => ({
+                            x: dir === 0 ? 0 : dir > 0 ? -70 : 70,
+                            opacity: 0,
+                            scale: 0.98,
+                            transition: {
+                              x: {
+                                type: 'spring',
+                                stiffness: 340,
+                                damping: 32,
+                              },
+                              opacity: { duration: 0.2 },
+                              scale: { duration: 0.2 },
+                            },
+                          }),
+                        }}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={0.2}
+                        onDragEnd={(_, info) => {
+                          if (info.offset.x < -40 || info.velocity.x < -300) {
+                            handleLightboxNext();
+                          } else if (
+                            info.offset.x > 40 ||
+                            info.velocity.x > 300
+                          ) {
+                            handleLightboxPrev();
+                          }
+                        }}
+                        className="absolute inset-0 h-full w-full touch-pan-y"
+                      >
+                        <Image
+                          src={experiences[lightboxIndex].image}
+                          alt={experiences[lightboxIndex].title}
+                          fill
+                          priority
+                          sizes="(max-width: 640px) 95vw, (max-width: 768px) 100vw, 1200px"
+                          style={{
+                            objectPosition:
+                              experiences[lightboxIndex].imagePosition ||
+                              '50% 50%',
+                            transform:
+                              experiences[lightboxIndex].imageTransform ||
+                              'none',
+                          }}
+                          className="pointer-events-none object-cover select-none"
+                        />
 
-                    {/* Refined Minimalist Close Button */}
+                        {/* Seamless Gradient Blend Overlay at Bottom */}
+                        <div className="xs:h-48 pointer-events-none absolute inset-x-0 bottom-0 z-10 h-44 bg-gradient-to-t from-black/95 via-black/65 via-50% to-transparent sm:h-52" />
+
+                        {/* Caption Text Content seamlessly integrated */}
+                        <div className="xs:px-6 xs:py-5 pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col gap-1 px-4 py-4 sm:gap-2 sm:px-8 sm:py-6">
+                          {/* Judul: Besar, Bold, Putih */}
+                          <m.h3
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.08, duration: 0.25 }}
+                            className="xs:text-lg text-base leading-tight font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] sm:text-xl md:text-2xl"
+                          >
+                            {experiences[lightboxIndex].title}
+                          </m.h3>
+
+                          {/* Deskripsi Ringkas */}
+                          {(experiences[lightboxIndex].story ||
+                            experiences[lightboxIndex].description) && (
+                            <m.p
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: 0.12, duration: 0.25 }}
+                              className="line-clamp-3 max-w-2xl text-xs leading-relaxed text-zinc-300 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] sm:line-clamp-2 sm:text-sm"
+                            >
+                              {experiences[lightboxIndex].story ||
+                                experiences[lightboxIndex].description}
+                            </m.p>
+                          )}
+                        </div>
+                      </m.div>
+                    </AnimatePresence>
+
+                    {/* Refined Minimalist Close Button - Fixed Top Right */}
                     <button
                       onClick={() => setLightboxIndex(null)}
-                      className="absolute top-3.5 right-3.5 z-20 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-black/55 text-zinc-300 shadow-lg backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-white/40 hover:bg-black/80 hover:text-white active:scale-95 sm:top-4 sm:right-4"
+                      className="absolute top-3.5 right-3.5 z-30 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-black/55 text-zinc-300 shadow-lg backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-white/40 hover:bg-black/80 hover:text-white active:scale-95 sm:top-4 sm:right-4"
                       aria-label="Close modal"
                     >
                       <X className="h-4 w-4" />
                     </button>
-
-                    {/* Seamless Gradient Blend Overlay at Bottom */}
-                    <div className="xs:h-48 pointer-events-none absolute inset-x-0 bottom-0 z-10 h-44 bg-gradient-to-t from-black/95 via-black/65 via-50% to-transparent sm:h-52" />
-
-                    {/* Caption Text Content seamlessly integrated */}
-                    <div className="xs:px-6 xs:py-5 absolute inset-x-0 bottom-0 z-20 flex flex-col gap-1 px-4 py-4 sm:gap-2 sm:px-8 sm:py-6">
-                      {/* Judul: Besar, Bold, Putih */}
-                      <m.h3
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ delay: 0.1, duration: 0.25 }}
-                        className="xs:text-lg text-base leading-tight font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] sm:text-xl md:text-2xl"
-                      >
-                        {experiences[lightboxIndex].title}
-                      </m.h3>
-
-                      {/* Deskripsi Ringkas */}
-                      {(experiences[lightboxIndex].story ||
-                        experiences[lightboxIndex].description) && (
-                        <m.p
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ delay: 0.15, duration: 0.25 }}
-                          className="line-clamp-3 max-w-2xl text-xs leading-relaxed text-zinc-300 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] sm:line-clamp-2 sm:text-sm"
-                        >
-                          {experiences[lightboxIndex].story ||
-                            experiences[lightboxIndex].description}
-                        </m.p>
-                      )}
-                    </div>
                   </div>
 
                   {/* Navigation Controls Floating OUTSIDE the Modal Card */}
@@ -362,9 +433,20 @@ export function ExperienceBeyondCode() {
                     </button>
 
                     <div className="flex h-10 w-24 flex-shrink-0 items-center justify-center gap-2 rounded-full border border-white/15 bg-zinc-900/90 font-mono text-xs text-zinc-400 tabular-nums shadow-xl backdrop-blur-md select-none sm:h-11 sm:w-28 sm:text-sm">
-                      <span className="w-4 text-center font-bold text-white sm:w-5">
-                        {String(lightboxIndex + 1).padStart(2, '0')}
-                      </span>
+                      <div className="relative h-4 w-4 overflow-hidden sm:h-5 sm:w-5">
+                        <AnimatePresence mode="popLayout" initial={false}>
+                          <m.span
+                            key={lightboxIndex}
+                            initial={{ y: direction > 0 ? 8 : -8, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: direction > 0 ? -8 : 8, opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute inset-0 flex items-center justify-center font-bold text-white"
+                          >
+                            {String(lightboxIndex + 1).padStart(2, '0')}
+                          </m.span>
+                        </AnimatePresence>
+                      </div>
                       <span className="text-zinc-600">/</span>
                       <span className="w-4 text-center sm:w-5">
                         {String(experiences.length).padStart(2, '0')}
