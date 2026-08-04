@@ -3,6 +3,7 @@ import { About } from '@/components/home/about';
 import { FeaturedWork } from '@/components/home/featured-work';
 import { TechnicalExpertise } from '@/components/home/technical-expertise';
 import { ExperienceBeyondCode } from '@/components/home/experience-beyond-code';
+import { ProfessionalCertifications } from '@/components/home/professional-certifications';
 import { Contact } from '@/components/home/contact';
 import { TopographicContour } from '@/components/background/topographic-contour';
 
@@ -15,6 +16,7 @@ export default function Home() {
         <About />
         <ExperienceBeyondCode />
         <TechnicalExpertise />
+        <ProfessionalCertifications />
       </div>
       <FeaturedWork />
       <Contact />

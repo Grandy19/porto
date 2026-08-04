@@ -7,13 +7,16 @@ import { ProfileScan, ProfileScanGlow } from '@/components/ui/profile-scan';
 
 export function Hero() {
   return (
-    <section id="home" className="relative w-full flex min-h-screen flex-col items-center justify-center pt-24 md:flex-row md:justify-between md:pt-0 overflow-hidden">
+    <section
+      id="home"
+      className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden pt-24 md:flex-row md:justify-between md:pt-0"
+    >
       <GeospatialMesh />
-      <div className="relative z-10 w-full max-w-7xl mx-auto flex flex-col-reverse items-center justify-between gap-12 px-6 sm:px-8 lg:px-12 md:flex-row">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col-reverse items-center justify-between gap-12 px-6 sm:px-8 md:flex-row lg:px-12">
         {/* Text Content */}
         <div className="flex flex-1 flex-col items-center text-center md:items-start md:text-left">
           <ScrollReveal delay={0}>
-            <h1 className="text-5xl leading-[1.1] font-bold tracking-tighter md:text-6xl lg:text-7xl md:leading-[1.05]">
+            <h1 className="text-5xl leading-[1.1] font-bold tracking-tighter md:text-6xl md:leading-[1.05] lg:text-7xl">
               <span className="text-zinc-400">Grandy</span>{' '}
               <br className="hidden md:block" />
               <span className="text-zinc-50">Alexander.</span>
@@ -22,20 +25,35 @@ export function Hero() {
 
           <ScrollReveal delay={0.06}>
             <p className="mt-8 max-w-[650px] text-base leading-relaxed font-normal text-zinc-400 sm:text-lg md:text-xl">
-              Building intelligent software for <span className="font-semibold text-zinc-100">smarter cities</span>, <span className="font-semibold text-zinc-100">businesses</span>, and <span className="font-semibold text-zinc-100">digital experiences</span>.
+              Building{' '}
+              <span className="font-semibold text-zinc-100">
+                intelligent software
+              </span>
+              ,{' '}
+              <span className="font-semibold text-zinc-100">AI solutions</span>,
+              and{' '}
+              <span className="font-semibold text-zinc-100">
+                digital experiences
+              </span>{' '}
+              for{' '}
+              <span className="font-semibold text-zinc-100">
+                smarter cities
+              </span>{' '}
+              and{' '}
+              <span className="font-semibold text-zinc-100">businesses</span>.
             </p>
           </ScrollReveal>
 
           <ScrollReveal delay={0.12} className="w-full sm:w-auto">
             <div className="mt-12 flex w-full flex-col items-center gap-6 sm:w-auto sm:flex-row">
               <Link href="/projects" className="w-[260px] sm:w-auto">
-                <Button className="group h-auto w-full rounded-2xl bg-zinc-100 px-8 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-950 shadow-none transition-all hover:scale-[1.05] hover:bg-white active:scale-95 sm:w-56 md:px-10 md:py-5">
+                <Button className="group h-auto w-full rounded-2xl bg-zinc-100 px-8 py-4 text-[10px] font-black tracking-[0.3em] text-zinc-950 uppercase shadow-none transition-all hover:scale-[1.05] hover:bg-white active:scale-95 sm:w-56 md:px-10 md:py-5">
                   View Projects
                 </Button>
               </Link>
               <Button
                 variant="outline"
-                className="group h-auto w-[260px] rounded-2xl border border-zinc-800 bg-transparent px-8 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 transition-all hover:scale-[1.05] hover:border-zinc-700 hover:bg-zinc-900 hover:text-zinc-100 active:scale-95 sm:w-56 md:px-10 md:py-5"
+                className="group h-auto w-[260px] rounded-2xl border border-zinc-800 bg-transparent px-8 py-4 text-[10px] font-black tracking-[0.3em] text-zinc-500 uppercase transition-all hover:scale-[1.05] hover:border-zinc-700 hover:bg-zinc-900 hover:text-zinc-100 active:scale-95 sm:w-56 md:px-10 md:py-5"
               >
                 Hire Me
               </Button>
@@ -44,14 +62,17 @@ export function Hero() {
         </div>
 
         {/* Portrait Implementation */}
-        <div className="hidden md:flex relative w-full flex-1 items-center justify-center md:justify-end pt-8 md:pt-0">
-          <ScrollReveal delay={0.18} className="relative z-0 h-[260px] w-[200px] sm:h-[300px] sm:w-[240px] md:h-[350px] md:w-[260px] lg:h-[400px] lg:w-[280px]">
+        <div className="relative hidden w-full flex-1 items-center justify-center pt-8 md:flex md:justify-end md:pt-0">
+          <ScrollReveal
+            delay={0.18}
+            className="relative z-0 h-[260px] w-[200px] sm:h-[300px] sm:w-[240px] md:h-[350px] md:w-[260px] lg:h-[400px] lg:w-[280px]"
+          >
             {/* Subtle Rim Light */}
-            <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-600/20 mix-blend-screen blur-[80px]" />
+            <div className="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[80%] w-[80%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-600/20 mix-blend-screen blur-[80px]" />
             <ProfileScanGlow />
 
             {/* Image Container */}
-            <div className="relative z-10 h-full w-full -rotate-2 overflow-hidden rounded-lg border border-white/10 bg-zinc-950 shadow-2xl transition-transform duration-500 hover:rotate-[0.5deg] hover:scale-[1.02]">
+            <div className="relative z-10 h-full w-full -rotate-2 overflow-hidden rounded-lg border border-white/10 bg-zinc-950 shadow-2xl transition-transform duration-500 hover:scale-[1.02] hover:rotate-[0.5deg]">
               <Image
                 src="/fotopribadi.jpeg"
                 alt="Grandy Alexander - Software Engineer"

@@ -1,6 +1,11 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useSyncExternalStore,
+} from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { experiences } from '@/data/experiences';
@@ -10,7 +15,13 @@ import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
 // Swiper React Components & Modules
 import { Swiper, SwiperSlide } from 'swiper/react';
-import { EffectCards, Navigation, Pagination, Keyboard, Mousewheel } from 'swiper/modules';
+import {
+  EffectCards,
+  Navigation,
+  Pagination,
+  Keyboard,
+  Mousewheel,
+} from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 
 // Swiper styles
@@ -19,25 +30,31 @@ import 'swiper/css/effect-cards';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+const emptySubscribe = () => () => {};
+
 export function ExperienceBeyondCode() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [swiperInstance, setSwiperInstance] = useState<SwiperType | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   const handleLightboxNext = useCallback(() => {
     if (lightboxIndex !== null) {
-      setLightboxIndex((prev) => (prev !== null ? (prev + 1) % experiences.length : 0));
+      setLightboxIndex((prev) =>
+        prev !== null ? (prev + 1) % experiences.length : 0
+      );
     }
   }, [lightboxIndex]);
 
   const handleLightboxPrev = useCallback(() => {
     if (lightboxIndex !== null) {
-      setLightboxIndex((prev) => (prev !== null ? (prev - 1 + experiences.length) % experiences.length : 0));
+      setLightboxIndex((prev) =>
+        prev !== null ? (prev - 1 + experiences.length) % experiences.length : 0
+      );
     }
   }, [lightboxIndex]);
 
@@ -67,36 +84,73 @@ export function ExperienceBeyondCode() {
 
   return (
     <section id="beyond-code" className="relative w-full overflow-hidden">
-      <div className="w-full max-w-7xl mx-auto px-4 xs:px-6 sm:px-8 lg:px-12 relative z-10">
-        
+      <div className="xs:px-6 relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-8 lg:px-12">
         {/* Constrained Section Divider Matching Technical Expertise & Engineering Journey */}
-        <div className="w-full mt-16 sm:mt-24 md:mt-32 pt-16 sm:pt-24 md:pt-32 border-t border-white/5 flex flex-col items-center">
-          
+        <div className="mt-16 flex w-full flex-col items-center border-t border-white/5 pt-16 sm:mt-24 sm:pt-24 md:mt-32 md:pt-32">
           {/* Section Header */}
           <ScrollReveal className="w-full">
-            <div className="flex flex-col items-center text-center gap-4 sm:gap-6 max-w-3xl mx-auto w-full mb-10 sm:mb-14 md:mb-20">
-              <h2 className="text-3xl font-bold tracking-tight text-zinc-50 md:text-5xl lg:text-6xl text-center flex flex-col gap-1 md:gap-2">
+            <div className="mx-auto mb-10 flex w-full max-w-3xl flex-col items-center gap-4 text-center sm:mb-14 sm:gap-6 md:mb-20">
+              <h2 className="flex flex-col gap-1 text-center text-3xl font-bold tracking-tight text-zinc-50 md:gap-2 md:text-5xl lg:text-6xl">
                 <span className="text-zinc-500">Experience</span>
                 <span>Beyond Code</span>
               </h2>
-              <div className="flex flex-col gap-3 text-base text-zinc-400 leading-relaxed md:text-lg max-w-2xl text-center px-2">
+              <div className="flex max-w-2xl flex-col gap-3 px-2 text-center text-base leading-relaxed text-zinc-400 md:text-lg">
                 <p>
-                  My journey extends beyond writing code. Through leadership, startup development, competitions, teaching, and technology communities, I have strengthened my collaboration, problem-solving, and engineering mindset.
+                  My journey extends{' '}
+                  <span className="font-semibold text-zinc-100">
+                    beyond writing code
+                  </span>
+                  . Through{' '}
+                  <span className="font-semibold text-zinc-100">
+                    leadership
+                  </span>
+                  ,{' '}
+                  <span className="font-semibold text-zinc-100">
+                    startup development
+                  </span>
+                  ,{' '}
+                  <span className="font-semibold text-zinc-100">
+                    competitions
+                  </span>
+                  ,{' '}
+                  <span className="font-semibold text-zinc-100">teaching</span>,
+                  and{' '}
+                  <span className="font-semibold text-zinc-100">
+                    technology communities
+                  </span>
+                  , I have strengthened my{' '}
+                  <span className="font-semibold text-zinc-100">
+                    collaboration
+                  </span>
+                  ,{' '}
+                  <span className="font-semibold text-zinc-100">
+                    problem-solving
+                  </span>
+                  , and{' '}
+                  <span className="font-semibold text-zinc-100">
+                    engineering mindset
+                  </span>
+                  .
                 </p>
               </div>
             </div>
           </ScrollReveal>
 
           {/* 3D Stacked Cards Deck (Swiper Effect Cards) */}
-          <div className="relative w-full flex flex-col items-center">
-            
+          <div className="relative flex w-full flex-col items-center">
             {/* Card Deck Wrapper with Responsive Width & Aspect Ratio */}
-            <div className="w-[260px] h-[370px] xs:w-[280px] xs:h-[400px] sm:w-[300px] sm:h-[420px] md:w-[320px] md:h-[440px]">
+            <div className="xs:w-[280px] xs:h-[400px] h-[370px] w-[260px] sm:h-[420px] sm:w-[300px] md:h-[440px] md:w-[320px]">
               <Swiper
                 effect={'cards'}
                 grabCursor={true}
-                modules={[EffectCards, Navigation, Pagination, Keyboard, Mousewheel]}
-                className="w-full h-full !overflow-visible"
+                modules={[
+                  EffectCards,
+                  Navigation,
+                  Pagination,
+                  Keyboard,
+                  Mousewheel,
+                ]}
+                className="h-full w-full !overflow-visible"
                 cardsEffect={{
                   slideShadows: true,
                   perSlideRotate: 3,
@@ -115,10 +169,13 @@ export function ExperienceBeyondCode() {
                 onSlideChange={(swiper) => setActiveIndex(swiper.activeIndex)}
               >
                 {experiences.map((exp, idx) => (
-                  <SwiperSlide key={exp.title} className="w-full h-full rounded-[20px] sm:rounded-[24px] overflow-hidden shadow-2xl">
+                  <SwiperSlide
+                    key={exp.title}
+                    className="h-full w-full overflow-hidden rounded-[20px] shadow-2xl sm:rounded-[24px]"
+                  >
                     <div
                       onClick={() => setLightboxIndex(idx)}
-                      className="group relative w-full h-full bg-zinc-900 border border-white/15 rounded-[20px] sm:rounded-[24px] overflow-hidden cursor-pointer select-none"
+                      className="group relative h-full w-full cursor-pointer overflow-hidden rounded-[20px] border border-white/15 bg-zinc-900 select-none sm:rounded-[24px]"
                     >
                       {/* Background Card Image - Sharp Monochrome by default, Colorful on hover */}
                       <Image
@@ -127,28 +184,30 @@ export function ExperienceBeyondCode() {
                         fill
                         quality={95}
                         sizes="(max-width: 640px) 280px, (max-width: 768px) 350px, 450px"
-                        style={{ objectPosition: exp.imagePosition || '50% 50%' }}
-                        className="object-cover filter grayscale contrast-[1.05] brightness-95 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-500 ease-out group-hover:scale-105"
+                        style={{
+                          objectPosition: exp.imagePosition || '50% 50%',
+                        }}
+                        className="object-cover brightness-95 contrast-[1.05] grayscale filter transition-all duration-500 ease-out group-hover:scale-105 group-hover:brightness-100 group-hover:grayscale-0"
                         priority={idx < 3}
                       />
 
                       {/* Top Right Frosted Glass Year Badge with White Text */}
-                      <div className="absolute top-3 right-3 xs:top-3.5 xs:right-3.5 sm:top-4 sm:right-4 z-20 px-2.5 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center">
-                        <span className="text-[10px] xs:text-[11px] sm:text-xs font-mono font-bold text-white tracking-wider">
+                      <div className="xs:top-3.5 xs:right-3.5 absolute top-3 right-3 z-20 flex items-center justify-center rounded-full border border-white/20 bg-black/40 px-2.5 py-1 shadow-lg backdrop-blur-md sm:top-4 sm:right-4">
+                        <span className="xs:text-[11px] font-mono text-[10px] font-bold tracking-wider text-white sm:text-xs">
                           {exp.year}
                         </span>
                       </div>
 
                       {/* Gradient Overlay for Clean Text Legibility */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-50% to-transparent pointer-events-none transition-opacity duration-300" />
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-50% to-transparent transition-opacity duration-300" />
 
                       {/* Card Content Area: Judul dan Deskripsi Ringkas */}
-                      <div className="absolute bottom-0 left-0 right-0 p-3.5 xs:p-4 sm:p-5 flex flex-col gap-0.5 z-10">
-                        <h3 className="text-base xs:text-lg sm:text-xl font-bold text-white leading-snug tracking-tight group-hover:text-zinc-100 transition-colors">
+                      <div className="xs:p-4 absolute right-0 bottom-0 left-0 z-10 flex flex-col gap-0.5 p-3.5 sm:p-5">
+                        <h3 className="xs:text-lg text-base leading-snug font-bold tracking-tight text-white transition-colors group-hover:text-zinc-100 sm:text-xl">
                           {exp.title}
                         </h3>
 
-                        <p className="text-[11px] xs:text-xs sm:text-[13px] text-zinc-300 font-medium tracking-wide">
+                        <p className="xs:text-xs text-[11px] font-medium tracking-wide text-zinc-300 sm:text-[13px]">
                           {exp.subtitle}
                         </p>
                       </div>
@@ -159,39 +218,42 @@ export function ExperienceBeyondCode() {
             </div>
 
             {/* Navigation Controls & Indicators - Matching Modal Pop-up Controls */}
-            <div className="flex items-center justify-center gap-3 sm:gap-4 mt-8 sm:mt-10 z-10">
+            <div className="z-10 mt-8 flex items-center justify-center gap-3 sm:mt-10 sm:gap-4">
               <button
                 onClick={() => swiperInstance?.slidePrev()}
                 disabled={activeIndex === 0}
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md"
+                className="flex h-10 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-zinc-900/90 text-zinc-300 shadow-xl backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-800 hover:text-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 sm:h-11 sm:w-11"
                 aria-label="Previous card"
               >
-                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
 
               {/* Pagination Numbers Capsule */}
-              <div className="w-24 sm:w-28 h-10 sm:h-11 flex items-center justify-center gap-2 font-mono text-xs sm:text-sm text-zinc-400 bg-zinc-900/90 border border-white/15 rounded-full shadow-xl select-none backdrop-blur-md tabular-nums flex-shrink-0">
-                <span className="w-4 sm:w-5 text-center text-white font-bold">{String(activeIndex + 1).padStart(2, '0')}</span>
+              <div className="flex h-10 w-24 flex-shrink-0 items-center justify-center gap-2 rounded-full border border-white/15 bg-zinc-900/90 font-mono text-xs text-zinc-400 tabular-nums shadow-xl backdrop-blur-md select-none sm:h-11 sm:w-28 sm:text-sm">
+                <span className="w-4 text-center font-bold text-white sm:w-5">
+                  {String(activeIndex + 1).padStart(2, '0')}
+                </span>
                 <span className="text-zinc-600">/</span>
-                <span className="w-4 sm:w-5 text-center">{String(experiences.length).padStart(2, '0')}</span>
+                <span className="w-4 text-center sm:w-5">
+                  {String(experiences.length).padStart(2, '0')}
+                </span>
               </div>
 
               <button
                 onClick={() => swiperInstance?.slideNext()}
                 disabled={activeIndex === experiences.length - 1}
-                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md"
+                className="flex h-10 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-zinc-900/90 text-zinc-300 shadow-xl backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-800 hover:text-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 sm:h-11 sm:w-11"
                 aria-label="Next card"
               >
-                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
               </button>
             </div>
 
             {/* Swipe Hint */}
-            <p className="text-[11px] sm:text-xs text-zinc-500 flex items-center gap-1.5 mt-3 sm:mt-4">
-              <Sparkles className="w-3.5 h-3.5" />
+            <p className="mt-3 flex items-center gap-1.5 text-[11px] text-zinc-500 sm:mt-4 sm:text-xs">
+              <Sparkles className="h-3.5 w-3.5" />
               <span>Swipe or use buttons to explore</span>
             </p>
-
           </div>
         </div>
       </div>
@@ -201,8 +263,8 @@ export function ExperienceBeyondCode() {
         createPortal(
           <AnimatePresence>
             {lightboxIndex !== null && (
-              <div 
-                className="fixed inset-0 z-[9999] flex items-center justify-center p-3 xs:p-4 sm:p-6 overflow-y-auto"
+              <div
+                className="xs:p-4 fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto p-3 sm:p-6"
                 style={{ transform: 'translateZ(0)' }}
               >
                 {/* Backdrop Layer */}
@@ -211,7 +273,7 @@ export function ExperienceBeyondCode() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.22, ease: 'easeOut' }}
-                  className="fixed inset-0 bg-black/80 backdrop-blur-[3px] -z-10 cursor-pointer"
+                  className="fixed inset-0 -z-10 cursor-pointer bg-black/80 backdrop-blur-[3px]"
                   onClick={() => setLightboxIndex(null)}
                 />
 
@@ -221,20 +283,22 @@ export function ExperienceBeyondCode() {
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: 8 }}
                   transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative w-full max-w-lg sm:max-w-3xl lg:max-w-4xl flex flex-col items-center gap-4 sm:gap-5 my-auto z-10"
+                  className="relative z-10 my-auto flex w-full max-w-lg flex-col items-center gap-4 sm:max-w-3xl sm:gap-5 lg:max-w-4xl"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Photo-First Editorial Card */}
-                  <div className="relative w-full aspect-[4/5] xs:aspect-[3/4] sm:aspect-video bg-zinc-950 border border-white/15 rounded-[20px] xs:rounded-[24px] sm:rounded-[28px] overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.95)]">
+                  <div className="xs:aspect-[3/4] xs:rounded-[24px] relative aspect-[4/5] w-full overflow-hidden rounded-[20px] border border-white/15 bg-zinc-950 shadow-[0_25px_80px_rgba(0,0,0,0.95)] sm:aspect-video sm:rounded-[28px]">
                     <Image
                       src={experiences[lightboxIndex].image}
                       alt={experiences[lightboxIndex].title}
                       fill
                       priority
                       sizes="(max-width: 640px) 95vw, (max-width: 768px) 100vw, 1200px"
-                      style={{ 
-                        objectPosition: experiences[lightboxIndex].imagePosition || '50% 50%',
-                        transform: experiences[lightboxIndex].imageTransform || 'none'
+                      style={{
+                        objectPosition:
+                          experiences[lightboxIndex].imagePosition || '50% 50%',
+                        transform:
+                          experiences[lightboxIndex].imageTransform || 'none',
                       }}
                       className="object-cover"
                     />
@@ -242,47 +306,47 @@ export function ExperienceBeyondCode() {
                     {/* Refined Minimalist Close Button */}
                     <button
                       onClick={() => setLightboxIndex(null)}
-                      className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/55 hover:bg-black/80 border border-white/20 hover:border-white/40 text-zinc-300 hover:text-white backdrop-blur-md transition-all duration-200 cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+                      className="absolute top-3.5 right-3.5 z-20 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/20 bg-black/55 text-zinc-300 shadow-lg backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-white/40 hover:bg-black/80 hover:text-white active:scale-95 sm:top-4 sm:right-4"
                       aria-label="Close modal"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="h-4 w-4" />
                     </button>
 
-
-
                     {/* Seamless Gradient Blend Overlay at Bottom */}
-                    <div className="absolute inset-x-0 bottom-0 h-44 xs:h-48 sm:h-52 bg-gradient-to-t from-black/95 via-black/65 via-50% to-transparent pointer-events-none z-10" />
+                    <div className="xs:h-48 pointer-events-none absolute inset-x-0 bottom-0 z-10 h-44 bg-gradient-to-t from-black/95 via-black/65 via-50% to-transparent sm:h-52" />
 
                     {/* Caption Text Content seamlessly integrated */}
-                    <div className="absolute inset-x-0 bottom-0 z-20 px-4 py-4 xs:px-6 xs:py-5 sm:px-8 sm:py-6 flex flex-col gap-1 sm:gap-2">
+                    <div className="xs:px-6 xs:py-5 absolute inset-x-0 bottom-0 z-20 flex flex-col gap-1 px-4 py-4 sm:gap-2 sm:px-8 sm:py-6">
                       {/* Judul: Besar, Bold, Putih */}
-                      <m.h3 
+                      <m.h3
                         initial={{ opacity: 0, y: 6 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
                         transition={{ delay: 0.1, duration: 0.25 }}
-                        className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold tracking-tight text-white leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                        className="xs:text-lg text-base leading-tight font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] sm:text-xl md:text-2xl"
                       >
                         {experiences[lightboxIndex].title}
                       </m.h3>
 
                       {/* Deskripsi Ringkas */}
-                      {(experiences[lightboxIndex].story || experiences[lightboxIndex].description) && (
-                        <m.p 
+                      {(experiences[lightboxIndex].story ||
+                        experiences[lightboxIndex].description) && (
+                        <m.p
                           initial={{ opacity: 0, y: 6 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0 }}
                           transition={{ delay: 0.15, duration: 0.25 }}
-                          className="text-xs sm:text-sm text-zinc-300 line-clamp-3 sm:line-clamp-2 max-w-2xl leading-relaxed drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]"
+                          className="line-clamp-3 max-w-2xl text-xs leading-relaxed text-zinc-300 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] sm:line-clamp-2 sm:text-sm"
                         >
-                          {experiences[lightboxIndex].story || experiences[lightboxIndex].description}
+                          {experiences[lightboxIndex].story ||
+                            experiences[lightboxIndex].description}
                         </m.p>
                       )}
                     </div>
                   </div>
 
                   {/* Navigation Controls Floating OUTSIDE the Modal Card */}
-                  <m.div 
+                  <m.div
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
@@ -291,29 +355,31 @@ export function ExperienceBeyondCode() {
                   >
                     <button
                       onClick={handleLightboxPrev}
-                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md"
+                      className="flex h-10 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-zinc-900/90 text-zinc-300 shadow-xl backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-800 hover:text-white active:scale-95 sm:h-11 sm:w-11"
                       aria-label="Previous experience"
                     >
-                      <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
 
-                    <div className="w-24 sm:w-28 h-10 sm:h-11 flex items-center justify-center gap-2 font-mono text-xs sm:text-sm text-zinc-400 bg-zinc-900/90 border border-white/15 rounded-full shadow-xl select-none backdrop-blur-md tabular-nums flex-shrink-0">
-                      <span className="w-4 sm:w-5 text-center text-white font-bold">{String(lightboxIndex + 1).padStart(2, '0')}</span>
+                    <div className="flex h-10 w-24 flex-shrink-0 items-center justify-center gap-2 rounded-full border border-white/15 bg-zinc-900/90 font-mono text-xs text-zinc-400 tabular-nums shadow-xl backdrop-blur-md select-none sm:h-11 sm:w-28 sm:text-sm">
+                      <span className="w-4 text-center font-bold text-white sm:w-5">
+                        {String(lightboxIndex + 1).padStart(2, '0')}
+                      </span>
                       <span className="text-zinc-600">/</span>
-                      <span className="w-4 sm:w-5 text-center">{String(experiences.length).padStart(2, '0')}</span>
+                      <span className="w-4 text-center sm:w-5">
+                        {String(experiences.length).padStart(2, '0')}
+                      </span>
                     </div>
 
                     <button
                       onClick={handleLightboxNext}
-                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md"
+                      className="flex h-10 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-zinc-900/90 text-zinc-300 shadow-xl backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-800 hover:text-white active:scale-95 sm:h-11 sm:w-11"
                       aria-label="Next experience"
                     >
-                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
                   </m.div>
-
                 </m.div>
-
               </div>
             )}
           </AnimatePresence>,
