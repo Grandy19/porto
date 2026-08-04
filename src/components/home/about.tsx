@@ -78,7 +78,7 @@ export function About() {
               className="relative mx-auto w-[200px] sm:w-[240px] md:mx-0 md:ml-auto md:w-[260px] lg:w-[280px]"
             >
               {/* Subtle rim light aura */}
-              <div className="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[100%] w-[100%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-600/10 mix-blend-screen blur-[120px]" />
+              <div className="pointer-events-none absolute top-1/2 left-1/2 -z-10 h-[100%] w-[100%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-600/10 mix-blend-screen blur-[40px] md:blur-[120px]" />
 
               {/* Portrait with seamless fade mask (Native 4:5 Aspect Ratio, uncropped) */}
               <div className="relative aspect-[4/5] w-full [mask-image:linear-gradient(to_bottom,black_65%,transparent_100%)] opacity-90">
@@ -87,8 +87,9 @@ export function About() {
                   alt="Grandy Alexander"
                   fill
                   className="object-cover grayscale-[60%] transition-opacity duration-700 hover:opacity-100"
-                  sizes="(max-width: 768px) 100vw, 500px"
-                  quality={90}
+                  sizes="(max-width: 640px) 200px, (max-width: 768px) 240px, 300px"
+                  quality={85}
+                  loading="lazy"
                 />
               </div>
             </ScrollReveal>

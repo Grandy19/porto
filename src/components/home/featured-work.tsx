@@ -61,6 +61,8 @@ export function FeaturedWork() {
                     src={project.thumbnailUrl}
                     alt={project.title}
                     fill
+                    quality={85}
+                    loading="lazy"
                     className="object-cover opacity-85 grayscale transition-all duration-[450ms] ease-[cubic-bezier(.22,.61,.36,1)] group-active:opacity-100 group-active:grayscale-0 md:group-hover:scale-[1.03] md:group-hover:opacity-100 md:group-hover:grayscale-0"
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />

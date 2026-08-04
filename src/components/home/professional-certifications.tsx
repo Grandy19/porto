@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion as m, AnimatePresence } from 'framer-motion';
+import { motion as m, AnimatePresence, useInView } from 'framer-motion';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { ScrollReveal } from '@/components/ui/scroll-reveal';
 import { certifications } from '@/data/certifications';
@@ -16,6 +16,7 @@ export function ProfessionalCertifications() {
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const isInView = useInView(containerRef, { amount: 0.1 });
 
   const total = certifications.length;
 
@@ -44,9 +45,9 @@ export function ProfessionalCertifications() {
     goTo(activeIndex - 1);
   }, [activeIndex, goTo]);
 
-  // Auto-play interval with pause on hover/focus
+  // Auto-play interval with pause on hover/focus or when out of view
   useEffect(() => {
-    if (isHovered || isFocused) return;
+    if (!isInView || isHovered || isFocused) return;
     autoPlayRef.current = setInterval(() => {
       handleNext();
     }, 4500);
@@ -54,7 +55,7 @@ export function ProfessionalCertifications() {
     return () => {
       if (autoPlayRef.current) clearInterval(autoPlayRef.current);
     };
-  }, [isHovered, isFocused, handleNext]);
+  }, [isInView, isHovered, isFocused, handleNext]);
 
   // Keyboard navigation
   useEffect(() => {

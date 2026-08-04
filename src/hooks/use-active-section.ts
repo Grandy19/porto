@@ -8,7 +8,7 @@ export function useActiveSection(sectionIds: string[]) {
       (entries) => {
         let maxVisibleArea = 0;
         let mostVisibleSection = '';
-        
+
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             // Check intersection ratio to pick the most visible section
@@ -18,9 +18,11 @@ export function useActiveSection(sectionIds: string[]) {
             }
           }
         });
-        
+
         if (mostVisibleSection) {
-          setActiveSection(mostVisibleSection);
+          setActiveSection((prev) =>
+            prev !== mostVisibleSection ? mostVisibleSection : prev
+          );
         }
       },
       { rootMargin: '-20% 0px -40% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] }

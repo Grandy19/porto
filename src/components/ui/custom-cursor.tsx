@@ -15,7 +15,11 @@ export function CustomCursor() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    if (window.innerWidth < 768) return;
+    if (
+      typeof window === 'undefined' ||
+      !window.matchMedia('(hover: hover) and (pointer: fine)').matches
+    )
+      return;
 
     const updatePosition = (e: MouseEvent) => {
       cursorX.set(e.clientX);
@@ -24,7 +28,9 @@ export function CustomCursor() {
       const target = e.target as HTMLElement;
       const isIgnored = target?.closest?.('[data-cursor-ignore]');
       const clickable = !isIgnored
-        ? target?.closest?.("a, button, [role='button'], input, select, textarea")
+        ? target?.closest?.(
+            "a, button, [role='button'], input, select, textarea"
+          )
         : null;
 
       setIsHovering(Boolean(clickable));
@@ -40,8 +46,14 @@ export function CustomCursor() {
 
     return () => {
       window.removeEventListener('mousemove', updatePosition);
-      document.documentElement.removeEventListener('mouseleave', handleMouseLeave);
-      document.documentElement.removeEventListener('mouseenter', handleMouseEnter);
+      document.documentElement.removeEventListener(
+        'mouseleave',
+        handleMouseLeave
+      );
+      document.documentElement.removeEventListener(
+        'mouseenter',
+        handleMouseEnter
+      );
     };
   }, [cursorX, cursorY, isVisible]);
 

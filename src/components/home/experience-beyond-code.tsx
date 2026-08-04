@@ -182,13 +182,13 @@ export function ExperienceBeyondCode() {
                         src={exp.image}
                         alt={exp.title}
                         fill
-                        quality={95}
+                        quality={85}
                         sizes="(max-width: 640px) 280px, (max-width: 768px) 350px, 450px"
                         style={{
                           objectPosition: exp.imagePosition || '50% 50%',
                         }}
                         className="object-cover brightness-95 contrast-[1.05] grayscale filter transition-all duration-500 ease-out group-hover:scale-105 group-hover:brightness-100 group-hover:grayscale-0"
-                        priority={idx < 3}
+                        loading={idx === 0 ? 'eager' : 'lazy'}
                       />
 
                       {/* Top Right Frosted Glass Year Badge with White Text */}

@@ -43,8 +43,8 @@ export function CertificatePreview({
               : 'brightness-70 contrast-[0.90]'
         }`}
         sizes="(max-width: 640px) 290px, (max-width: 1024px) 370px, 420px"
-        quality={95}
-        priority
+        quality={85}
+        loading={isActive ? 'eager' : 'lazy'}
       />
 
       {/* Dark tint overlay for non-active cards to make active card pop */}
