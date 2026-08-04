@@ -7,6 +7,7 @@ import { CustomCursor } from '@/components/ui/custom-cursor';
 import { Navbar } from '@/components/layout/navbar';
 import { Preloader } from '@/components/ui/preloader';
 import { Footer } from '@/components/layout/footer';
+import { Analytics } from '@vercel/analytics/react';
 import { siteConfig } from '@/constants/site';
 import './globals.css';
 
@@ -50,9 +51,7 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: [
-      { url: '/logo.png', sizes: 'any', type: 'image/png' },
-    ],
+    icon: [{ url: '/logo.png', sizes: 'any', type: 'image/png' }],
     shortcut: '/logo.png',
     apple: '/logo.png',
   },
@@ -88,6 +87,7 @@ export default function RootLayout({
               <main className="flex-1">{children}</main>
               <Footer />
             </div>
+            <Analytics />
           </MotionProvider>
         </ThemeProvider>
       </body>
