@@ -26,11 +26,18 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
   const [isExiting, setIsExiting] = useState(false);
 
   // Smooth coordinates for Blueprint Highlight sweep (Mouse & Touch supported)
-  const mouseX = useMotionValue(typeof window !== 'undefined' ? window.innerWidth / 2 : 500);
-  const mouseY = useMotionValue(typeof window !== 'undefined' ? window.innerHeight / 2 : 500);
+  const mouseX = useMotionValue(500);
+  const mouseY = useMotionValue(500);
 
   const smoothMouseX = useSpring(mouseX, { damping: 35, stiffness: 220 });
   const smoothMouseY = useSpring(mouseY, { damping: 35, stiffness: 220 });
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      mouseX.set(window.innerWidth / 2);
+      mouseY.set(window.innerHeight / 2);
+    }
+  }, [mouseX, mouseY]);
 
   // Top-level Hook call (Strictly adheres to React Rules of Hooks)
   const blueprintHighlightBg = useMotionTemplate`radial-gradient(380px circle at ${smoothMouseX}px ${smoothMouseY}px, rgba(161, 161, 170, 0.045), transparent 80%)`;

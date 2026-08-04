@@ -10,10 +10,8 @@ type GlobalPreloaderState = 'welcome' | 'loading' | 'complete';
 
 export function Preloader() {
   const [stage, setStage] = useState<GlobalPreloaderState>('welcome');
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     // Ensure initial scroll position is always at top
     window.scrollTo(0, 0);
 
@@ -33,8 +31,6 @@ export function Preloader() {
 
   // Strict Full Scroll Lock (HTML + Body + Wheel/Touch prevent) while not complete
   useEffect(() => {
-    if (!mounted) return;
-
     if (stage !== 'complete') {
       window.scrollTo(0, 0);
       document.documentElement.style.overflow = 'hidden';
@@ -72,13 +68,11 @@ export function Preloader() {
       document.body.style.overscrollBehavior = '';
       engine.stopAll();
     }
-  }, [stage, mounted]);
+  }, [stage]);
 
   const handleStart = () => {
     setStage('loading');
   };
-
-  if (!mounted) return null;
 
   return (
     <AnimatePresence>
