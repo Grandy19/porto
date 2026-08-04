@@ -297,36 +297,26 @@ export function ExperienceBeyondCode() {
                         custom={direction}
                         variants={{
                           enter: (dir: number) => ({
-                            x: dir === 0 ? 0 : dir > 0 ? 70 : -70,
+                            x: dir === 0 ? 0 : dir > 0 ? 60 : -60,
                             opacity: 0,
-                            scale: 0.98,
+                            scale: 0.97,
                           }),
                           center: {
                             x: 0,
                             opacity: 1,
                             scale: 1,
                             transition: {
-                              x: {
-                                type: 'spring',
-                                stiffness: 340,
-                                damping: 32,
-                              },
-                              opacity: { duration: 0.28 },
-                              scale: { duration: 0.28 },
+                              duration: 0.28,
+                              ease: [0.25, 1, 0.5, 1],
                             },
                           },
                           exit: (dir: number) => ({
-                            x: dir === 0 ? 0 : dir > 0 ? -70 : 70,
+                            x: dir === 0 ? 0 : dir > 0 ? -60 : 60,
                             opacity: 0,
-                            scale: 0.98,
+                            scale: 0.97,
                             transition: {
-                              x: {
-                                type: 'spring',
-                                stiffness: 340,
-                                damping: 32,
-                              },
-                              opacity: { duration: 0.2 },
-                              scale: { duration: 0.2 },
+                              duration: 0.2,
+                              ease: [0.25, 1, 0.5, 1],
                             },
                           }),
                         }}
@@ -337,16 +327,16 @@ export function ExperienceBeyondCode() {
                         dragConstraints={{ left: 0, right: 0 }}
                         dragElastic={0.2}
                         onDragEnd={(_, info) => {
-                          if (info.offset.x < -40 || info.velocity.x < -300) {
+                          if (info.offset.x < -35 || info.velocity.x < -250) {
                             handleLightboxNext();
                           } else if (
-                            info.offset.x > 40 ||
-                            info.velocity.x > 300
+                            info.offset.x > 35 ||
+                            info.velocity.x > 250
                           ) {
                             handleLightboxPrev();
                           }
                         }}
-                        className="absolute inset-0 h-full w-full touch-pan-y"
+                        className="absolute inset-0 h-full w-full transform-gpu touch-pan-y will-change-transform"
                       >
                         <Image
                           src={experiences[lightboxIndex].image}
@@ -371,27 +361,17 @@ export function ExperienceBeyondCode() {
                         {/* Caption Text Content seamlessly integrated */}
                         <div className="xs:px-6 xs:py-5 pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col gap-1 px-4 py-4 sm:gap-2 sm:px-8 sm:py-6">
                           {/* Judul: Besar, Bold, Putih */}
-                          <m.h3
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.08, duration: 0.25 }}
-                            className="xs:text-lg text-base leading-tight font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] sm:text-xl md:text-2xl"
-                          >
+                          <h3 className="xs:text-lg text-base leading-tight font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] sm:text-xl md:text-2xl">
                             {experiences[lightboxIndex].title}
-                          </m.h3>
+                          </h3>
 
                           {/* Deskripsi Ringkas */}
                           {(experiences[lightboxIndex].story ||
                             experiences[lightboxIndex].description) && (
-                            <m.p
-                              initial={{ opacity: 0, y: 6 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: 0.12, duration: 0.25 }}
-                              className="line-clamp-3 max-w-2xl text-xs leading-relaxed text-zinc-300 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] sm:line-clamp-2 sm:text-sm"
-                            >
+                            <p className="line-clamp-3 max-w-2xl text-xs leading-relaxed text-zinc-300 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] sm:line-clamp-2 sm:text-sm">
                               {experiences[lightboxIndex].story ||
                                 experiences[lightboxIndex].description}
-                            </m.p>
+                            </p>
                           )}
                         </div>
                       </m.div>
@@ -412,7 +392,7 @@ export function ExperienceBeyondCode() {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    transition={{ delay: 0.28, duration: 0.25 }}
+                    transition={{ delay: 0.15, duration: 0.22 }}
                     className="flex items-center justify-center gap-3 sm:gap-4"
                   >
                     <button
@@ -424,20 +404,9 @@ export function ExperienceBeyondCode() {
                     </button>
 
                     <div className="flex h-10 w-24 flex-shrink-0 items-center justify-center gap-2 rounded-full border border-white/15 bg-zinc-900/90 font-mono text-xs text-zinc-400 tabular-nums shadow-xl backdrop-blur-md select-none sm:h-11 sm:w-28 sm:text-sm">
-                      <div className="relative h-4 w-4 overflow-hidden sm:h-5 sm:w-5">
-                        <AnimatePresence mode="popLayout" initial={false}>
-                          <m.span
-                            key={lightboxIndex}
-                            initial={{ y: direction > 0 ? 8 : -8, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            exit={{ y: direction > 0 ? -8 : 8, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="absolute inset-0 flex items-center justify-center font-bold text-white"
-                          >
-                            {String(lightboxIndex + 1).padStart(2, '0')}
-                          </m.span>
-                        </AnimatePresence>
-                      </div>
+                      <span className="w-4 text-center font-bold text-white sm:w-5">
+                        {String(lightboxIndex + 1).padStart(2, '0')}
+                      </span>
                       <span className="text-zinc-600">/</span>
                       <span className="w-4 text-center sm:w-5">
                         {String(experiences.length).padStart(2, '0')}

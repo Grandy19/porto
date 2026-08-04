@@ -24,7 +24,7 @@ export function CertificatePreview({
 
   return (
     <div
-      className={`group relative h-full w-full overflow-hidden rounded-xl transition-all duration-300 select-none sm:rounded-2xl ${
+      className={`group relative h-full w-full transform-gpu overflow-hidden rounded-xl will-change-transform select-none sm:rounded-2xl ${
         isActive
           ? 'shadow-[0_25px_60px_-12px_rgba(0,0,0,0.95)] ring-1 ring-white/30'
           : 'shadow-[0_12px_36px_-6px_rgba(0,0,0,0.6)] ring-1 ring-white/10'
@@ -35,7 +35,7 @@ export function CertificatePreview({
         src={cert.image}
         alt={cert.title}
         fill
-        className={`object-cover transition-all duration-500 ease-out group-hover:scale-[1.02] ${
+        className={`object-cover transition-opacity duration-300 ease-out md:transition-all md:duration-500 md:group-hover:scale-[1.02] ${
           isActive
             ? 'brightness-100 contrast-100'
             : distance === 1
@@ -43,13 +43,13 @@ export function CertificatePreview({
               : 'brightness-70 contrast-[0.90]'
         }`}
         sizes="(max-width: 640px) 290px, (max-width: 1024px) 370px, 420px"
-        quality={85}
+        quality={80}
         loading={isActive ? 'eager' : 'lazy'}
       />
 
       {/* Dark tint overlay for non-active cards to make active card pop */}
       <div
-        className={`pointer-events-none absolute inset-0 rounded-xl transition-colors duration-300 sm:rounded-2xl ${getDarkOverlayClass()}`}
+        className={`pointer-events-none absolute inset-0 rounded-xl transition-colors duration-200 sm:rounded-2xl ${getDarkOverlayClass()}`}
       />
 
       {/* Crisp subtle border framing around rounded corners */}

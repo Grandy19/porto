@@ -179,8 +179,9 @@ export function ProfessionalCertifications() {
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.18}
               onDragEnd={(_, info) => {
-                if (info.offset.x < -35) handleNext();
-                else if (info.offset.x > 35) handlePrev();
+                if (info.offset.x < -30 || info.velocity.x < -200) handleNext();
+                else if (info.offset.x > 30 || info.velocity.x > 200)
+                  handlePrev();
               }}
               className="xs:min-h-[260px] relative flex min-h-[230px] w-full cursor-grab touch-pan-y items-center justify-center active:cursor-grabbing sm:min-h-[290px] md:min-h-[330px] lg:min-h-[360px]"
             >
@@ -202,12 +203,12 @@ export function ProfessionalCertifications() {
                         zIndex: pos.zIndex,
                       }}
                       transition={{
-                        duration: 0.65,
-                        ease: [0.22, 1, 0.36, 1],
+                        duration: 0.35,
+                        ease: [0.25, 1, 0.5, 1],
                       }}
                       whileHover={{
-                        y: pos.y - 8,
-                        scale: pos.scale * 1.03,
+                        y: pos.y - 6,
+                        scale: pos.scale * 1.02,
                         transition: { duration: 0.2 },
                       }}
                       onClick={() => {
@@ -217,7 +218,7 @@ export function ProfessionalCertifications() {
                         transformOrigin: 'center center',
                         pointerEvents: pos.isVisible ? 'auto' : 'none',
                       }}
-                      className={`xs:w-[290px] xs:h-[195px] absolute h-[174px] w-[260px] rounded-xl transition-shadow duration-300 sm:h-[220px] sm:w-[330px] sm:rounded-2xl md:h-[248px] md:w-[370px] lg:h-[275px] lg:w-[410px] ${
+                      className={`xs:w-[290px] xs:h-[195px] absolute h-[174px] w-[260px] transform-gpu rounded-xl will-change-transform sm:h-[220px] sm:w-[330px] sm:rounded-2xl md:h-[248px] md:w-[370px] lg:h-[275px] lg:w-[410px] ${
                         isActive ? 'cursor-default' : 'cursor-pointer'
                       }`}
                     >
@@ -234,15 +235,9 @@ export function ProfessionalCertifications() {
 
             {/* Number Indicator (e.g. 01 of 06) */}
             <div className="mt-6 mb-3 flex flex-col items-center justify-center sm:mt-8 sm:mb-4">
-              <m.span
-                key={activeIndex}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, ease: 'easeOut' }}
-                className="font-mono text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl"
-              >
+              <span className="font-mono text-3xl font-extrabold tracking-tight text-white tabular-nums sm:text-4xl md:text-5xl">
                 {String(activeIndex + 1).padStart(2, '0')}
-              </m.span>
+              </span>
               <span className="mt-1 text-[11px] font-semibold tracking-[0.25em] text-zinc-500 uppercase">
                 of {String(total).padStart(2, '0')}
               </span>
