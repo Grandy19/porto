@@ -77,10 +77,10 @@ export function Hero() {
                 src="/fotopribadi.jpeg"
                 alt="Grandy Alexander - Software Engineer"
                 fill
-                priority
+                loading="lazy"
                 className="object-cover object-top drop-shadow-2xl md:object-center"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 450px"
-                quality={85}
+                quality={80}
               />
               <ProfileScan />
             </div>

@@ -15,20 +15,12 @@ import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
 // Swiper React Components & Modules
 import { Swiper, SwiperSlide } from 'swiper/react';
-import {
-  EffectCards,
-  Navigation,
-  Pagination,
-  Keyboard,
-  Mousewheel,
-} from 'swiper/modules';
+import { EffectCards, Keyboard, Mousewheel } from 'swiper/modules';
 import type { Swiper as SwiperType } from 'swiper';
 
 // Swiper styles
 import 'swiper/css';
 import 'swiper/css/effect-cards';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 
 const emptySubscribe = () => () => {};
 
@@ -151,16 +143,15 @@ export function ExperienceBeyondCode() {
               <Swiper
                 effect={'cards'}
                 grabCursor={true}
-                modules={[
-                  EffectCards,
-                  Navigation,
-                  Pagination,
-                  Keyboard,
-                  Mousewheel,
-                ]}
+                speed={320}
+                touchRatio={1.25}
+                touchAngle={45}
+                resistanceRatio={0.65}
+                watchSlidesProgress={true}
+                modules={[EffectCards, Keyboard, Mousewheel]}
                 className="h-full w-full !overflow-visible"
                 cardsEffect={{
-                  slideShadows: true,
+                  slideShadows: false,
                   perSlideRotate: 3,
                   perSlideOffset: 8,
                 }}
@@ -179,35 +170,35 @@ export function ExperienceBeyondCode() {
                 {experiences.map((exp, idx) => (
                   <SwiperSlide
                     key={exp.title}
-                    className="h-full w-full overflow-hidden rounded-[20px] shadow-2xl sm:rounded-[24px]"
+                    className="h-full w-full transform-gpu overflow-hidden rounded-[20px] shadow-2xl will-change-transform sm:rounded-[24px]"
                   >
                     <div
                       onClick={() => handleOpenLightbox(idx)}
                       className="group relative h-full w-full cursor-pointer overflow-hidden rounded-[20px] border border-white/15 bg-zinc-900 select-none sm:rounded-[24px]"
                     >
-                      {/* Background Card Image - Sharp Monochrome by default, Colorful on hover */}
+                      {/* Background Card Image */}
                       <Image
                         src={exp.image}
                         alt={exp.title}
                         fill
-                        quality={85}
+                        quality={80}
                         sizes="(max-width: 640px) 280px, (max-width: 768px) 350px, 450px"
                         style={{
                           objectPosition: exp.imagePosition || '50% 50%',
                         }}
-                        className="object-cover brightness-95 contrast-[1.05] grayscale filter transition-all duration-500 ease-out group-hover:scale-105 group-hover:brightness-100 group-hover:grayscale-0"
+                        className="pointer-events-none object-cover brightness-95 contrast-[1.05] grayscale md:transition-all md:duration-500 md:group-hover:scale-105 md:group-hover:brightness-100 md:group-hover:grayscale-0"
                         loading={idx === 0 ? 'eager' : 'lazy'}
                       />
 
-                      {/* Top Right Frosted Glass Year Badge with White Text */}
-                      <div className="xs:top-3.5 xs:right-3.5 absolute top-3 right-3 z-20 flex items-center justify-center rounded-full border border-white/20 bg-black/40 px-2.5 py-1 shadow-lg backdrop-blur-md sm:top-4 sm:right-4">
+                      {/* Top Right Solid/Frosted Year Badge */}
+                      <div className="xs:top-3.5 xs:right-3.5 absolute top-3 right-3 z-20 flex items-center justify-center rounded-full border border-white/20 bg-black/75 px-2.5 py-1 shadow-lg sm:top-4 sm:right-4">
                         <span className="xs:text-[11px] font-mono text-[10px] font-bold tracking-wider text-white sm:text-xs">
                           {exp.year}
                         </span>
                       </div>
 
                       {/* Gradient Overlay for Clean Text Legibility */}
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-50% to-transparent transition-opacity duration-300" />
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 via-50% to-transparent" />
 
                       {/* Card Content Area: Judul dan Deskripsi Ringkas */}
                       <div className="xs:p-4 absolute right-0 bottom-0 left-0 z-10 flex flex-col gap-0.5 p-3.5 sm:p-5">
