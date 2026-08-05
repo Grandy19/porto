@@ -37,13 +37,27 @@ export function Preloader() {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overscrollBehavior = 'none';
       document.body.style.overscrollBehavior = 'none';
+      document.documentElement.setAttribute('data-preloader-active', 'true');
+      window.dispatchEvent(
+        new CustomEvent('preloader-stage', { detail: { stage } })
+      );
 
       const preventDefault = (e: Event) => {
         e.preventDefault();
       };
 
       const handleKeyDown = (e: KeyboardEvent) => {
-        if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
+        if (
+          [
+            'ArrowUp',
+            'ArrowDown',
+            'PageUp',
+            'PageDown',
+            'Home',
+            'End',
+            ' ',
+          ].includes(e.key)
+        ) {
           e.preventDefault();
         }
       };
@@ -66,6 +80,10 @@ export function Preloader() {
       document.body.style.overflow = '';
       document.documentElement.style.overscrollBehavior = '';
       document.body.style.overscrollBehavior = '';
+      document.documentElement.removeAttribute('data-preloader-active');
+      window.dispatchEvent(
+        new CustomEvent('preloader-stage', { detail: { stage: 'complete' } })
+      );
       engine.stopAll();
     }
   }, [stage]);
@@ -82,12 +100,10 @@ export function Preloader() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}
-          className="fixed inset-0 z-[100] bg-[#09090B] touch-none select-none overscroll-none overflow-hidden"
+          className="fixed inset-0 z-[9999] touch-none overflow-hidden overscroll-none bg-[#09090B] select-none"
         >
           {/* Welcome Screen Overlay */}
-          {stage === 'welcome' && (
-            <WelcomeScreen onStart={handleStart} />
-          )}
+          {stage === 'welcome' && <WelcomeScreen onStart={handleStart} />}
 
           {/* 3D Lego Brick Falling & Assembling Animation */}
           {stage === 'loading' && (

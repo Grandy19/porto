@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
@@ -12,11 +12,28 @@ import { useActiveSection } from '@/hooks/use-active-section';
 import { navLinks } from '@/constants/navigation';
 import { cn } from '@/lib/utils';
 
+const subscribePreloader = (callback: () => void) => {
+  window.addEventListener('preloader-stage', callback);
+  return () => window.removeEventListener('preloader-stage', callback);
+};
+
+const getPreloaderSnapshot = () => {
+  if (typeof document === 'undefined') return true;
+  return document.documentElement.hasAttribute('data-preloader-active');
+};
+
+const getServerSnapshot = () => true;
+
 export function Navbar() {
   const scrolled = useScroll(20);
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
+  const isPreloaderActive = useSyncExternalStore(
+    subscribePreloader,
+    getPreloaderSnapshot,
+    getServerSnapshot
+  );
 
   // Extract IDs from navLinks for IntersectionObserver
   const sectionIds = useMemo(
@@ -38,7 +55,14 @@ export function Navbar() {
   }, [mobileMenuOpen]);
 
   return (
-    <header className="pointer-events-none fixed top-3 right-0 left-0 z-[100] flex justify-center px-3.5 sm:top-5 sm:px-6">
+    <header
+      className={cn(
+        'pointer-events-none fixed top-3 right-0 left-0 z-[100] flex justify-center px-3.5 transition-all duration-500 ease-out sm:top-5 sm:px-6',
+        isPreloaderActive
+          ? 'pointer-events-none -translate-y-4 opacity-0'
+          : 'translate-y-0 opacity-100'
+      )}
+    >
       {/* Capsule Container (Pill) */}
       <div
         className={cn(
