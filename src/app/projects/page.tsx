@@ -6,30 +6,43 @@ import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
 export const metadata: Metadata = {
   title: 'All Projects — Grandy Alexander',
-  description: 'Kumpulan proyek yang telah saya kerjakan selama perjalanan karir.',
+  description:
+    'Kumpulan proyek yang telah saya kerjakan selama perjalanan karir.',
 };
 
 export default function ProjectsPage() {
   return (
-    <main className="min-h-screen bg-[#09090B] relative overflow-hidden">
+    <div className="relative z-20 min-h-screen w-full overflow-x-clip bg-[#09090B]">
       {/* Background Elements */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-50">
+      <div className="pointer-events-none absolute inset-0 z-0 opacity-50">
         <BlueprintGrid />
       </div>
-      
-      {/* Glow Effects */}
-      <div className="fixed left-0 top-0 -z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 mix-blend-screen blur-[120px] pointer-events-none" />
-      <div className="fixed right-0 bottom-0 -z-10 h-[600px] w-[600px] translate-x-1/3 translate-y-1/3 rounded-full bg-blue-600/10 mix-blend-screen blur-[150px] pointer-events-none" />
 
-      <div className="w-full max-w-7xl relative z-10 mx-auto px-6 sm:px-8 lg:px-12 py-32 md:py-40">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 pt-32 pb-16 sm:px-8 sm:pt-36 sm:pb-16 md:pt-40 md:pb-20 lg:px-12">
         {/* Hero Section */}
         <ScrollReveal>
-          <div className="flex flex-col items-center text-center mb-16 md:mb-24 max-w-2xl mx-auto">
-            <h1 className="text-4xl font-bold tracking-tight text-zinc-50 md:text-6xl lg:text-7xl mb-6">
+          <div className="mx-auto mb-16 flex max-w-2xl flex-col items-center text-center md:mb-24">
+            <h1 className="mb-6 text-4xl font-bold tracking-tight text-zinc-50 md:text-6xl lg:text-7xl">
               <span className="text-zinc-500">All</span> Projects
             </h1>
-            <p className="text-base text-zinc-400 leading-relaxed md:text-lg max-w-2xl px-2">
-              A showcase of projects built to solve <strong className="font-semibold text-zinc-50">real-world problems</strong> through <strong className="font-semibold text-zinc-50">software engineering</strong>, <strong className="font-semibold text-zinc-50">intelligent systems</strong>, and <strong className="font-semibold text-zinc-50">user-centered design</strong>.
+            <p className="max-w-2xl px-2 text-base leading-relaxed text-zinc-400 md:text-lg">
+              A showcase of projects built to solve{' '}
+              <strong className="font-semibold text-zinc-50">
+                real-world problems
+              </strong>{' '}
+              through{' '}
+              <strong className="font-semibold text-zinc-50">
+                software engineering
+              </strong>
+              ,{' '}
+              <strong className="font-semibold text-zinc-50">
+                intelligent systems
+              </strong>
+              , and{' '}
+              <strong className="font-semibold text-zinc-50">
+                user-centered design
+              </strong>
+              .
             </p>
           </div>
         </ScrollReveal>
@@ -37,6 +50,6 @@ export default function ProjectsPage() {
         {/* Filter and Grid */}
         <ProjectList initialProjects={projects} />
       </div>
-    </main>
+    </div>
   );
 }

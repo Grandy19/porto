@@ -1,34 +1,49 @@
 'use client';
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import {
+  useState,
+  useMemo,
+  useRef,
+  useEffect,
+  useSyncExternalStore,
+} from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, SlidersHorizontal, PackageOpen } from 'lucide-react';
+import { PackageOpen, X } from 'lucide-react';
 import { ProjectData } from '@/data/projects';
 import { ProjectCard } from './project-card';
 import { SpaceBackground } from './space-background';
 import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
-const CATEGORIES = [
-  'Semua',
-  'Software Engineering',
-  'UI/UX Design',
-  'Machine Learning',
-  'Smart City',
-  'Data Analytics',
-  'IoT'
-];
-
-type SortOption = 'Terbaru' | 'Terlama' | 'A-Z';
-
 interface ProjectListProps {
   initialProjects: ProjectData[];
 }
 
+const emptySubscribe = () => () => {};
+
 export function ProjectList({ initialProjects }: ProjectListProps) {
-  const [activeCategory, setActiveCategory] = useState('Semua');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<SortOption>('Terbaru');
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+  const [activeCategory] = useState('Semua');
+  const [searchQuery] = useState('');
+  const [sortBy] = useState<'Terbaru' | 'Terlama' | 'A-Z'>('Terbaru');
   const [activePopup, setActivePopup] = useState<string | null>(null);
+  const [width, setWidth] = useState(1000);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      if (entries[0]) {
+        setWidth(entries[0].contentRect.width);
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Filter & Sort Logic
   const filteredProjects = useMemo(() => {
@@ -37,12 +52,12 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
     // 1. Search Filter
     if (searchQuery.trim() !== '') {
       const q = searchQuery.toLowerCase();
-      result = result.filter(p => p.title.toLowerCase().includes(q));
+      result = result.filter((p) => p.title.toLowerCase().includes(q));
     }
 
     // 2. Category Filter
     if (activeCategory !== 'Semua') {
-      result = result.filter(p => p.category === activeCategory);
+      result = result.filter((p) => p.category === activeCategory);
     }
 
     // 3. Sort
@@ -50,13 +65,13 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
       if (sortBy === 'A-Z') {
         return a.title.localeCompare(b.title);
       }
-      
+
       const yearA = parseInt(a.year) || 0;
       const yearB = parseInt(b.year) || 0;
-      
+
       if (sortBy === 'Terbaru') {
         return yearB - yearA;
-      } else { // Terlama
+      } else {
         return yearA - yearB;
       }
     });
@@ -64,30 +79,18 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
     return result;
   }, [initialProjects, activeCategory, searchQuery, sortBy]);
 
-  const [width, setWidth] = useState(1000);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!containerRef.current) return;
-    const observer = new ResizeObserver((entries) => {
-      setWidth(entries[0].contentRect.width);
-    });
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, []);
-
   const generatePath = () => {
     if (filteredProjects.length === 0) return '';
     // Mobile responsive: use smaller zig-zag if width is small
-    const offset = width < 768 ? 0.15 : 0.25;
+    const offset = width < 768 ? 0.18 : 0.25;
     const xLeft = width * offset;
     const xRight = width * (1 - offset);
-    
+
     let path = `M ${xLeft} 20`;
     for (let i = 0; i < filteredProjects.length - 1; i++) {
       const isEven = i % 2 === 0;
       const x1 = isEven ? xLeft : xRight;
-      const x2 = ((i + 1) % 2 === 0) ? xLeft : xRight;
+      const x2 = (i + 1) % 2 === 0 ? xLeft : xRight;
       const y1 = i * 250 + 20;
       const y2 = (i + 1) * 250 + 20;
       const yMid = (y1 + y2) / 2;
@@ -96,35 +99,45 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
     return path;
   };
 
-  const totalHeight = Math.max(1, filteredProjects.length) * 250 + 200;
+  const isMobile = width < 768;
+  const lastIndex = Math.max(0, filteredProjects.length - 1);
+  const totalHeight =
+    filteredProjects.length === 0
+      ? 300
+      : lastIndex * 250 + (isMobile ? 120 : 100);
   const pathData = generatePath();
 
   return (
-    <div className="w-full relative">
+    <div className="relative w-full">
       <SpaceBackground />
-      
+
       {/* Grid / Roadmap Timeline */}
-      <motion.div 
-        layout 
+      <div
         ref={containerRef}
-        className="relative z-10 w-full pb-32 mt-4" 
+        className="relative z-10 mt-4 w-full pb-2 md:pb-16"
         style={{ height: totalHeight }}
       >
-        <svg 
-          className="absolute top-0 left-0 w-full h-full pointer-events-none z-0 overflow-visible"
+        <svg
+          className="pointer-events-none absolute top-0 left-0 z-0 h-full w-full overflow-visible"
           viewBox={`0 0 ${width} ${totalHeight}`}
           preserveAspectRatio="none"
         >
           <defs>
-            <linearGradient id="roadmap-gradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.8" />
+            <linearGradient
+              id="roadmap-gradient"
+              x1="0%"
+              y1="0%"
+              x2="0%"
+              y2="100%"
+            >
+              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#a1a1aa" stopOpacity="0.4" />
             </linearGradient>
             <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+              <feGaussianBlur stdDeviation="4" result="coloredBlur" />
               <feMerge>
-                <feMergeNode in="coloredBlur"/>
-                <feMergeNode in="SourceGraphic"/>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
           </defs>
@@ -133,45 +146,46 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
           {pathData && (
             <>
               {/* Glow background road */}
-              <path 
-                d={pathData} 
-                fill="none" 
-                stroke="url(#roadmap-gradient)" 
-                strokeWidth="4" 
+              <path
+                d={pathData}
+                fill="none"
+                stroke="url(#roadmap-gradient)"
+                strokeWidth="4"
                 filter="url(#glow)"
                 strokeLinecap="round"
                 className="opacity-50"
               />
               {/* Core road */}
-              <path 
+              <path
                 id="rocket-path"
-                d={pathData} 
-                fill="none" 
-                stroke="#fff" 
-                strokeWidth="2" 
+                d={pathData}
+                fill="none"
+                stroke="#fff"
+                strokeWidth="2"
                 strokeLinecap="round"
                 className="opacity-80"
               />
 
               {/* The Animated Rocket (White Icon) */}
               <g className="drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]">
-                {/* 
-                  The lucide-react Rocket icon normally points at -45 deg (top-right).
-                  We rotate it by 45 deg so it points at 0 deg (right),
-                  ensuring rotate="auto" aligns it perfectly with the path's tangent.
-                  Scale 1.5 makes it larger.
-                */}
                 <g transform="scale(1.5)">
-                  <g transform="translate(-12, -12) rotate(45, 12, 12)" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
-                    <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
-                    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
-                    <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                  <g
+                    transform="translate(-12, -12) rotate(45, 12, 12)"
+                    stroke="white"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                    <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                    <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
                   </g>
                 </g>
-                <animateMotion 
-                  dur={`${Math.max(8, filteredProjects.length * 3)}s`} 
-                  repeatCount="indefinite" 
+                <animateMotion
+                  dur={`${Math.max(8, filteredProjects.length * 3)}s`}
+                  repeatCount="indefinite"
                   rotate="auto"
                 >
                   <mpath href="#rocket-path" />
@@ -181,86 +195,92 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
           )}
         </svg>
 
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence>
           {filteredProjects.length > 0 ? (
             filteredProjects.map((project, i) => {
-              const offset = width < 768 ? 0.15 : 0.25;
+              const offset = width < 768 ? 0.18 : 0.25;
               const isEven = i % 2 === 0;
               const x = isEven ? `${offset * 100}%` : `${(1 - offset) * 100}%`;
               const y = i * 250 + 20;
-              
+
               const isActive = activePopup === project.slug;
 
               return (
-                <motion.div 
+                <motion.div
                   key={project.slug}
-                  layout
-                  initial={{ opacity: 0, scale: 0, x: "-50%", y: "-50%" }}
-                  animate={{ opacity: 1, scale: 1, x: "-50%", y: "-50%" }}
-                  exit={{ opacity: 0, scale: 0, x: "-50%", y: "-50%" }}
+                  initial={{ opacity: 0, scale: 0, x: '-50%', y: '-50%' }}
+                  animate={{ opacity: 1, scale: 1, x: '-50%', y: '-50%' }}
+                  exit={{ opacity: 0, scale: 0, x: '-50%', y: '-50%' }}
                   transition={{ duration: 0.5, delay: i * 0.15 }}
-                  className="absolute z-10 w-12 h-12 md:w-16 md:h-16 group cursor-pointer"
+                  className="group absolute z-10 h-12 w-12 cursor-pointer md:h-16 md:w-16"
                   style={{ left: x, top: y }}
                   onClick={() => setActivePopup(isActive ? null : project.slug)}
                 >
-                  <ScrollReveal delay={i * 0.1} className="w-full h-full relative">
+                  <ScrollReveal
+                    delay={i * 0.1}
+                    className="relative h-full w-full"
+                  >
                     {/* Premium Node (Exactly fills the container) */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       {/* Outer Ping Ring */}
-                      <div className={`absolute inset-0 rounded-full bg-primary/20 transition-all duration-500 ${isActive ? 'opacity-0 scale-150 animate-none' : 'opacity-75 animate-ping group-hover:bg-primary/40 group-hover:animate-none group-hover:scale-150'}`} />
+                      <div
+                        className={`absolute inset-0 rounded-full bg-white/10 transition-all duration-500 ${isActive ? 'scale-150 animate-none opacity-0' : 'animate-ping opacity-60 group-hover:scale-150 group-hover:animate-none group-hover:bg-white/20'}`}
+                      />
                       {/* Glass border ring */}
-                      <div className={`absolute inset-1 rounded-full border backdrop-blur-sm bg-zinc-950/50 transition-colors duration-500 ${isActive ? 'border-primary' : 'border-primary/30 group-hover:border-primary'}`} />
+                      <div
+                        className={`absolute inset-1 rounded-full border bg-zinc-950/70 backdrop-blur-sm transition-colors duration-500 ${isActive ? 'border-white/80' : 'border-white/20 group-hover:border-white/60'}`}
+                      />
                       {/* Inner glowing core */}
-                      <div className={`relative w-3 h-3 md:w-4 md:h-4 bg-primary rounded-full transition-all duration-500 ${isActive ? 'scale-150 shadow-[0_0_30px_rgba(59,130,246,1)]' : 'shadow-[0_0_15px_rgba(59,130,246,1)] group-hover:scale-150 group-hover:shadow-[0_0_30px_rgba(59,130,246,1)]'}`} />
+                      <div
+                        className={`relative h-3 w-3 rounded-full bg-white transition-all duration-500 md:h-4 md:w-4 ${isActive ? 'scale-150 shadow-[0_0_20px_rgba(255,255,255,1)]' : 'shadow-[0_0_10px_rgba(255,255,255,0.8)] group-hover:scale-150 group-hover:shadow-[0_0_20px_rgba(255,255,255,1)]'}`}
+                      />
                     </div>
-                    
+
                     {/* Glassmorphism Title Pill */}
-                    <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-3 px-5 py-2 rounded-full border backdrop-blur-md shadow-lg transition-all duration-300 ${isActive ? 'bg-primary/20 border-primary/50 -translate-y-1' : 'border-white/10 bg-zinc-950/60 group-hover:bg-primary/20 group-hover:border-primary/50 group-hover:-translate-y-1'}`}>
-                      <span className="text-xs md:text-sm font-bold text-white tracking-wider uppercase whitespace-nowrap transition-colors">
-                          {project.title}
+                    <div
+                      className={`absolute top-full left-1/2 mt-3 max-w-[150px] -translate-x-1/2 rounded-full border px-3.5 py-1.5 text-center shadow-lg backdrop-blur-md transition-all duration-300 sm:max-w-none sm:px-5 sm:py-2 ${isActive ? '-translate-y-1 border-white/40 bg-white/15' : 'border-white/10 bg-zinc-950/60 group-hover:-translate-y-1 group-hover:border-white/30 group-hover:bg-white/10'}`}
+                    >
+                      <span className="block truncate text-[11px] font-bold tracking-wider text-white uppercase transition-colors sm:text-xs md:text-sm">
+                        {project.title}
                       </span>
                     </div>
 
                     {/* The Click Popup (Desktop Only) */}
-                    <div className={`hidden md:block absolute top-full mt-14 pt-4 w-[280px] md:w-[350px] transition-all duration-300 z-50 
-                      ${isEven ? 'left-1/2 -translate-x-1/2 md:left-0 md:-translate-x-1/4' : 'left-1/2 -translate-x-1/2 md:right-0 md:translate-x-1/4 md:left-auto'}
-                      ${isActive ? 'opacity-100 pointer-events-auto translate-y-0' : 'opacity-0 pointer-events-none translate-y-4'}
-                    `}
-                    onClick={(e) => e.stopPropagation()}
+                    <div
+                      className={`absolute top-full z-50 mt-14 hidden w-[280px] pt-4 transition-all duration-300 md:block md:w-[350px] ${isEven ? 'left-1/2 -translate-x-1/2 md:left-0 md:-translate-x-1/4' : 'left-1/2 -translate-x-1/2 md:right-0 md:left-auto md:translate-x-1/4'} ${isActive ? 'pointer-events-auto translate-y-0 opacity-100' : 'pointer-events-none translate-y-4 opacity-0'} `}
+                      onClick={(e) => e.stopPropagation()}
                     >
-                        <ProjectCard project={project} index={i} />
+                      <ProjectCard project={project} index={i} />
                     </div>
                   </ScrollReveal>
                 </motion.div>
-              )
+              );
             })
           ) : (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="flex flex-col items-center justify-center py-24 text-center rounded-2xl border border-dashed border-white/10 bg-zinc-950/30"
+              className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-zinc-950/30 py-24 text-center"
             >
-              <PackageOpen className="h-12 w-12 text-zinc-700 mb-4" />
-              <h3 className="text-xl font-bold text-zinc-300 mb-2">No Projects Found</h3>
-              <p className="text-zinc-500 text-sm max-w-sm">
-                We couldn't find any projects matching "{searchQuery}" in the "{activeCategory}" category.
+              <PackageOpen className="mb-4 h-12 w-12 text-zinc-700" />
+              <h3 className="mb-2 text-xl font-bold text-zinc-300">
+                No Projects Found
+              </h3>
+              <p className="max-w-sm text-sm text-zinc-500">
+                We couldn&apos;t find any projects.
               </p>
-              <button 
-                onClick={() => { setSearchQuery(''); setActiveCategory('Semua'); }}
-                className="mt-6 text-sm text-primary hover:underline underline-offset-4"
-              >
-                Clear all filters
-              </button>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
 
       {/* Global styles */}
       <style jsx global>{`
         @keyframes dash {
-          to { stroke-dashoffset: -1000; }
+          to {
+            stroke-dashoffset: -1000;
+          }
         }
         .hide-scrollbar::-webkit-scrollbar {
           display: none;
@@ -273,34 +293,52 @@ export function ProjectList({ initialProjects }: ProjectListProps) {
           mask-image: linear-gradient(to right, black 80%, transparent 100%);
         }
       `}</style>
-      
-      {/* Mobile Modal Overlay for Projects */}
-      <AnimatePresence>
-        {activePopup && width < 768 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center px-6 bg-zinc-950/80 backdrop-blur-md md:hidden"
-            onClick={() => setActivePopup(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.95, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-[340px]"
-            >
-              <ProjectCard 
-                project={filteredProjects.find(p => p.slug === activePopup)!} 
-                index={0} 
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
+      {/* Mobile Modal Overlay for Projects (High performance, zero lag, above footer via Portal) */}
+      {mounted &&
+        createPortal(
+          <AnimatePresence>
+            {activePopup && width < 768 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="fixed inset-0 z-[150] flex touch-none items-center justify-center overscroll-none bg-black/75 px-6 md:hidden"
+                style={{ touchAction: 'none', overscrollBehavior: 'none' }}
+                onTouchMove={(e) => e.preventDefault()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onClick={() => setActivePopup(null)}
+              >
+                <motion.div
+                  initial={{ scale: 0.95, y: 15, opacity: 0 }}
+                  animate={{ scale: 1, y: 0, opacity: 1 }}
+                  exit={{ scale: 0.95, y: 15, opacity: 0 }}
+                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="relative w-full max-w-[340px] transform-gpu"
+                >
+                  {/* Close button */}
+                  <button
+                    onClick={() => setActivePopup(null)}
+                    className="absolute -top-3 -right-3 z-20 flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-zinc-900 text-zinc-200 shadow-xl active:scale-90"
+                    aria-label="Close project preview"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+
+                  <ProjectCard
+                    project={filteredProjects.find(
+                      (p) => p.slug === activePopup
+                    )!}
+                    index={0}
+                  />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
     </div>
   );
 }

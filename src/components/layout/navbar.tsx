@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
@@ -27,18 +27,6 @@ export function Navbar() {
   );
   const activeSection = useActiveSection(sectionIds);
 
-  // Prevent background scroll when mobile menu is open
-  useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [mobileMenuOpen]);
-
   if (!isPreloaderComplete) {
     return null;
   }
@@ -47,13 +35,13 @@ export function Navbar() {
     <m.header
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
       className="pointer-events-none fixed top-3 right-0 left-0 z-[100] flex justify-center px-3.5 sm:top-5 sm:px-6"
     >
       {/* Capsule Container (Pill) */}
       <div
         className={cn(
-          'pointer-events-auto flex w-full max-w-[1100px] items-center justify-between rounded-full border transition-all duration-[220ms] ease-out',
+          'pointer-events-auto flex w-full max-w-[1100px] items-center justify-between rounded-full border transition-all duration-200 ease-out',
           scrolled
             ? 'h-[52px] border-white/10 bg-zinc-950/85 px-3.5 py-2 shadow-[0_8px_32px_rgba(0,0,0,0.6)] backdrop-blur-xl sm:h-[62px] sm:px-5 md:h-[68px]'
             : 'h-[56px] border-white/10 bg-zinc-950/60 px-3.5 py-2.5 shadow-md backdrop-blur-xl sm:h-[70px] sm:border-white/5 sm:px-6 sm:shadow-sm md:h-[80px] md:border-transparent md:bg-transparent md:px-8 md:shadow-none md:backdrop-blur-none'
@@ -63,7 +51,7 @@ export function Navbar() {
         <Link
           href="/#home"
           className={cn(
-            'flex shrink-0 items-center gap-2.5 transition-all duration-[180ms] hover:opacity-85 sm:gap-3',
+            'flex shrink-0 items-center gap-2.5 transition-transform duration-150 active:scale-95 sm:gap-3',
             scrolled ? 'scale-[0.97]' : 'scale-100'
           )}
           onClick={() => setMobileMenuOpen(false)}
@@ -86,17 +74,17 @@ export function Navbar() {
         {/* Tengah: Navigation Links (Desktop) */}
         <nav className="hidden flex-1 items-center justify-center gap-8 md:flex lg:gap-10">
           {navLinks.map((link) => {
-            const isPathProjects =
-              pathname.startsWith('/projects') && link.name === 'Projects';
-            const isActive =
-              activeSection === link.href.replace('#', '') || isPathProjects;
+            const isProjectsPage = pathname.startsWith('/projects');
+            const isActive = isProjectsPage
+              ? link.name === 'Projects'
+              : activeSection === link.href.replace('#', '');
             const href = pathname === '/' ? link.href : `/${link.href}`;
             return (
               <Link
                 key={link.name}
                 href={href}
                 className={cn(
-                  'relative py-1 text-sm font-medium tracking-wide transition-colors duration-[180ms]',
+                  'relative py-1 text-sm font-medium tracking-wide transition-colors duration-150',
                   isActive
                     ? 'text-zinc-50'
                     : 'text-zinc-400 hover:text-zinc-200'
@@ -119,19 +107,19 @@ export function Navbar() {
         <div className="hidden shrink-0 md:flex">
           <button
             onClick={() => setResumeModalOpen(true)}
-            className="group flex h-auto cursor-pointer items-center justify-center rounded-2xl bg-zinc-100 px-6 py-2.5 text-[10px] font-black tracking-[0.25em] text-zinc-950 uppercase shadow-none transition-all duration-[180ms] hover:scale-[1.04] hover:bg-white active:scale-95 sm:px-8 sm:py-3"
+            className="group flex h-auto cursor-pointer items-center justify-center rounded-2xl bg-zinc-100 px-6 py-2.5 text-[10px] font-black tracking-[0.25em] text-zinc-950 uppercase shadow-none transition-all duration-150 hover:scale-[1.04] hover:bg-white active:scale-95 sm:px-8 sm:py-3"
           >
             Resume
           </button>
         </div>
 
-        {/* Mobile Toggle Button (Refined Apple-like Pill Button) */}
+        {/* Mobile Toggle Button (Instant touch-manipulation) */}
         <button
           className={cn(
-            'flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border transition-all duration-200 active:scale-90 md:hidden',
+            'flex h-9 w-9 shrink-0 cursor-pointer touch-manipulation items-center justify-center rounded-full border transition-transform duration-100 active:scale-90 md:hidden',
             mobileMenuOpen
               ? 'border-white/30 bg-white text-zinc-950 shadow-[0_0_15px_rgba(255,255,255,0.4)]'
-              : 'border-white/15 bg-white/5 text-zinc-200 hover:border-white/25 hover:bg-white/10'
+              : 'border-white/15 bg-white/10 text-zinc-200 active:bg-white/20'
           )}
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle mobile navigation menu"
@@ -149,49 +137,41 @@ export function Navbar() {
       <AnimatePresence>
         {mobileMenuOpen && (
           <>
-            {/* Soft Ambient Backdrop */}
+            {/* Lightweight GPU-Accelerated Frosted Backdrop */}
             <m.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
               onClick={() => setMobileMenuOpen(false)}
-              className="pointer-events-auto fixed inset-0 z-[110] bg-black/75 backdrop-blur-md md:hidden"
+              className="pointer-events-auto fixed inset-0 z-[110] touch-none bg-black/60 backdrop-blur-md md:hidden"
             />
 
-            {/* Ultra-Premium Glass Floating Menu Card */}
+            {/* Ultra-Responsive Mobile Menu Card */}
             <m.div
-              initial={{ opacity: 0, y: -12, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.96 }}
-              transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-              className="pointer-events-auto fixed top-[68px] right-4 left-4 z-[120] mx-auto w-[calc(100vw-32px)] max-w-sm transform-gpu overflow-hidden rounded-[24px] border border-white/15 bg-zinc-950/95 p-3.5 shadow-[0_25px_70px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.06)] backdrop-blur-2xl will-change-transform sm:top-[78px] sm:p-4 md:hidden"
+              initial={{ opacity: 0, scale: 0.96, y: -6 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: -6 }}
+              transition={{ duration: 0.16, ease: [0.2, 0, 0, 1] }}
+              className="pointer-events-auto fixed top-[64px] right-3.5 left-3.5 z-[120] mx-auto max-w-sm transform-gpu overflow-hidden rounded-[26px] border border-white/15 bg-zinc-950/95 p-4 shadow-[0_25px_60px_rgba(0,0,0,0.95)] sm:top-[76px] sm:p-5 md:hidden"
             >
-              {/* Subtle Ambient Top Glow */}
-              <div className="pointer-events-none absolute -top-12 left-1/2 h-24 w-48 -translate-x-1/2 rounded-full bg-white/10 blur-2xl" />
+              {/* Radial Top Ambient Rim Lighting */}
+              <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
-              {/* Card Header Status */}
-              <div className="mb-1.5 flex items-center justify-between px-2.5 py-1.5">
-                <span className="font-mono text-[10px] font-bold tracking-[0.2em] text-zinc-500 uppercase">
-                  Menu
+              {/* Card Header Label */}
+              <div className="mb-2 px-1.5 pt-0.5">
+                <span className="font-mono text-[9px] font-bold tracking-[0.25em] text-zinc-400 uppercase">
+                  Navigation
                 </span>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                  <span className="text-[10px] font-medium text-zinc-400">
-                    Available
-                  </span>
-                </div>
               </div>
 
               {/* Navigation Items List */}
               <div className="relative z-10 flex flex-col gap-1">
                 {navLinks.map((link, idx) => {
-                  const isPathProjects =
-                    pathname.startsWith('/projects') &&
-                    link.name === 'Projects';
-                  const isActive =
-                    activeSection === link.href.replace('#', '') ||
-                    isPathProjects;
+                  const isProjectsPage = pathname.startsWith('/projects');
+                  const isActive = isProjectsPage
+                    ? link.name === 'Projects'
+                    : activeSection === link.href.replace('#', '');
                   const href = pathname === '/' ? link.href : `/${link.href}`;
 
                   return (
@@ -200,31 +180,29 @@ export function Navbar() {
                       href={href}
                       onClick={() => setMobileMenuOpen(false)}
                       className={cn(
-                        'flex items-center justify-between rounded-xl px-3.5 py-3 text-sm font-medium tracking-wide transition-all duration-200 active:scale-[0.98]',
+                        'group flex min-h-[46px] touch-manipulation items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-medium tracking-wide transition-colors duration-100 active:scale-[0.98]',
                         isActive
-                          ? 'border border-white/15 bg-white/10 font-semibold text-white shadow-[0_4px_20px_rgba(0,0,0,0.3)]'
-                          : 'border border-transparent text-zinc-400 hover:bg-white/[0.05] hover:text-zinc-100'
+                          ? 'border border-white/20 bg-white/10 font-semibold text-white shadow-sm'
+                          : 'border border-transparent text-zinc-300 active:bg-white/[0.08] active:text-white'
                       )}
                     >
                       <span className="flex items-center gap-3">
                         {isActive ? (
-                          <span className="h-2 w-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1)]" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1)]" />
                         ) : (
-                          <span className="font-mono text-[11px] font-semibold tracking-wider text-zinc-600">
+                          <span className="font-mono text-[11px] font-semibold tracking-wider text-zinc-500">
                             0{idx + 1}
                           </span>
                         )}
-                        <span className="text-sm font-semibold">
+                        <span className="text-[14px] font-medium tracking-tight">
                           {link.name}
                         </span>
                       </span>
 
                       <ArrowUpRight
                         className={cn(
-                          'h-3.5 w-3.5 transition-transform duration-200',
-                          isActive
-                            ? 'translate-x-0 text-white opacity-100'
-                            : 'text-zinc-600 opacity-60 group-hover:opacity-100'
+                          'h-4 w-4 transition-colors',
+                          isActive ? 'text-white' : 'text-zinc-500'
                         )}
                       />
                     </Link>
@@ -241,9 +219,9 @@ export function Navbar() {
                   setMobileMenuOpen(false);
                   setResumeModalOpen(true);
                 }}
-                className="group flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-zinc-100 via-white to-zinc-200 px-4 py-3 text-xs font-black tracking-[0.15em] text-zinc-950 uppercase shadow-[0_4px_20px_rgba(255,255,255,0.15)] transition-all hover:opacity-95 active:scale-[0.98]"
+                className="group flex min-h-[44px] w-full cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-zinc-100 via-white to-zinc-200 px-4 py-3 text-xs font-bold tracking-[0.16em] text-zinc-950 uppercase shadow-md transition-transform duration-100 active:scale-[0.98]"
               >
-                <Download className="h-3.5 w-3.5" />
+                <Download className="h-3.5 w-3.5 text-zinc-950" />
                 <span>View Resume / CV</span>
               </button>
             </m.div>
