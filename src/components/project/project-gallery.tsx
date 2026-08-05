@@ -1,6 +1,12 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  useSyncExternalStore,
+} from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { ProjectData } from '@/data/projects';
@@ -8,15 +14,21 @@ import { motion as m, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { ScrollReveal } from '@/components/ui/scroll-reveal';
 
+const emptySubscribe = () => () => {};
+
 export function ProjectGallery({ project }: { project: ProjectData }) {
   const [itemsPerPage, setItemsPerPage] = useState(3);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const isMounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+  const isDraggingRef = useRef(false);
 
   // Responsive items per page
   useEffect(() => {
-    setIsMounted(true);
     const handleResize = () => {
       if (window.innerWidth < 768) setItemsPerPage(1);
       else if (window.innerWidth < 1024) setItemsPerPage(2);
@@ -39,22 +51,43 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
   }, []);
 
   // Swipe handlers for inline gallery
-  const handleDragEnd = (_e: MouseEvent | TouchEvent | PointerEvent, info: { offset: { x: number; y: number } }) => {
+  const handleDragStart = () => {
+    isDraggingRef.current = true;
+  };
+
+  const handleDragEnd = (
+    _e: MouseEvent | TouchEvent | PointerEvent,
+    info: { offset: { x: number; y: number } }
+  ) => {
     const swipe = info.offset.x;
-    if (swipe < -50) handleNext();
-    else if (swipe > 50) handlePrev();
+    if (swipe < -40) handleNext();
+    else if (swipe > 40) handlePrev();
+
+    // Release drag flag quickly so subsequent taps are responsive
+    setTimeout(() => {
+      isDraggingRef.current = false;
+    }, 60);
+  };
+
+  const handleCardClick = (index: number) => {
+    if (isDraggingRef.current) return;
+    setLightboxIndex(index);
   };
 
   // Lightbox navigation
   const handleLightboxNext = useCallback(() => {
     if (lightboxIndex !== null) {
-      setLightboxIndex((prev) => (prev !== null ? (prev + 1) % gallery.length : 0));
+      setLightboxIndex((prev) =>
+        prev !== null ? (prev + 1) % gallery.length : 0
+      );
     }
   }, [gallery.length, lightboxIndex]);
 
   const handleLightboxPrev = useCallback(() => {
     if (lightboxIndex !== null) {
-      setLightboxIndex((prev) => (prev !== null ? (prev - 1 + gallery.length) % gallery.length : 0));
+      setLightboxIndex((prev) =>
+        prev !== null ? (prev - 1 + gallery.length) % gallery.length : 0
+      );
     }
   }, [gallery.length, lightboxIndex]);
 
@@ -77,7 +110,9 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
     } else {
       document.body.style.overflow = '';
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = '';
+    };
   }, [lightboxIndex]);
 
   if (!gallery || gallery.length === 0) return null;
@@ -86,13 +121,12 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
 
   return (
     <section className="relative w-full">
-      <div className="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-        <div className="w-full h-[1px] bg-white/10" />
+      <div className="mx-auto w-full max-w-7xl px-6 sm:px-8 lg:px-12">
+        <div className="h-[1px] w-full bg-white/10" />
       </div>
-      <div className="w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-24 md:py-32">
+      <div className="mx-auto w-full max-w-7xl px-6 py-24 sm:px-8 md:py-32 lg:px-12">
         <ScrollReveal>
           <div className="flex flex-col gap-12">
-            
             {/* Header */}
             <div>
               <h2 className="text-3xl font-bold tracking-tight text-zinc-50 md:text-3xl">
@@ -101,22 +135,23 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
             </div>
 
             {/* Continuous Smooth Slider Track */}
-            <div className="relative overflow-hidden -mx-3 px-3">
+            <div className="relative -mx-3 overflow-hidden px-3">
               <m.div
                 animate={{
                   x: `-${currentIndex * (100 / itemsPerPage)}%`,
                 }}
                 transition={{
-                  type: "spring",
-                  stiffness: 220,
-                  damping: 28,
-                  mass: 0.6,
+                  type: 'spring',
+                  stiffness: 240,
+                  damping: 30,
+                  mass: 0.5,
                 }}
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
-                dragElastic={0.12}
+                dragElastic={0.1}
+                onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
-                className="flex cursor-grab active:cursor-grabbing touch-pan-y"
+                className="flex transform-gpu cursor-grab touch-pan-y will-change-transform active:cursor-grabbing"
               >
                 {gallery.map((image, actualIndex) => (
                   <div
@@ -125,20 +160,21 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
                     className="shrink-0 px-3"
                   >
                     <div
-                      onClick={() => setLightboxIndex(actualIndex)}
+                      onClick={() => handleCardClick(actualIndex)}
                       role="button"
                       tabIndex={0}
-                      className="group relative aspect-video w-full rounded-[24px] overflow-hidden bg-[#111111] border border-white/10 cursor-pointer flex items-center justify-center transition-all duration-300 hover:border-white/25 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]"
+                      className="group relative flex aspect-video w-full transform-gpu cursor-pointer items-center justify-center overflow-hidden rounded-[20px] border border-white/10 bg-[#111111] transition-all duration-200 will-change-transform hover:border-white/25 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] active:scale-[0.98] sm:rounded-[24px]"
                     >
                       <Image
                         src={image.src}
                         alt={image.alt}
                         fill
+                        quality={85}
                         sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover transition-all duration-500 ease-out grayscale opacity-85 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-[1.03]"
+                        className="object-cover opacity-85 grayscale transition-all duration-300 ease-out group-hover:scale-[1.02] group-hover:opacity-100 group-hover:grayscale-0"
                       />
                       {/* Subtle inner shadow for premium feel */}
-                      <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[24px] pointer-events-none group-hover:ring-white/20 transition-all duration-500" />
+                      <div className="pointer-events-none absolute inset-0 rounded-[20px] ring-1 ring-white/10 transition-all duration-300 ring-inset group-hover:ring-white/20 sm:rounded-[24px]" />
                     </div>
                   </div>
                 ))}
@@ -147,35 +183,38 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
 
             {/* Centered Navigation Controls (Mobile & Desktop) */}
             {gallery.length > itemsPerPage && (
-              <div className="flex justify-center mt-2 sm:mt-4">
+              <div className="mt-2 flex justify-center sm:mt-4">
                 <div className="flex items-center gap-3">
-                  <button 
+                  <button
                     onClick={handlePrev}
                     disabled={currentIndex === 0}
-                    className="w-10 h-10 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all active:scale-95 hover:scale-105 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md disabled:opacity-30 disabled:hover:text-zinc-300 disabled:cursor-not-allowed"
+                    className="flex h-10 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-zinc-900/90 text-zinc-300 shadow-xl backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-800 hover:text-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-zinc-300"
                     aria-label="Previous image"
                   >
-                    <ChevronLeft className="w-4 h-4" />
+                    <ChevronLeft className="h-4 w-4" />
                   </button>
 
-                  <div className="w-24 h-10 flex items-center justify-center gap-2 font-mono text-xs text-zinc-400 bg-zinc-900/90 border border-white/15 rounded-full shadow-xl select-none backdrop-blur-md tabular-nums flex-shrink-0">
-                    <span className="w-4 text-center text-white font-bold">{String(currentIndex + 1).padStart(2, '0')}</span>
+                  <div className="flex h-10 w-24 flex-shrink-0 items-center justify-center gap-2 rounded-full border border-white/15 bg-zinc-900/90 font-mono text-xs text-zinc-400 tabular-nums shadow-xl backdrop-blur-md select-none">
+                    <span className="w-4 text-center font-bold text-white">
+                      {String(currentIndex + 1).padStart(2, '0')}
+                    </span>
                     <span className="text-zinc-600">/</span>
-                    <span className="w-4 text-center">{String(maxDisplayCount).padStart(2, '0')}</span>
+                    <span className="w-4 text-center">
+                      {String(maxDisplayCount).padStart(2, '0')}
+                    </span>
                   </div>
 
-                  <button 
+                  <button
                     onClick={handleNext}
                     disabled={currentIndex === maxIndex}
-                    className="w-10 h-10 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all active:scale-95 hover:scale-105 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md disabled:opacity-30 disabled:hover:text-zinc-300 disabled:cursor-not-allowed"
+                    className="flex h-10 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-zinc-900/90 text-zinc-300 shadow-xl backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-800 hover:text-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:text-zinc-300"
                     aria-label="Next image"
                   >
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>
               </div>
             )}
-
           </div>
         </ScrollReveal>
       </div>
@@ -185,8 +224,8 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
         createPortal(
           <AnimatePresence>
             {lightboxIndex !== null && (
-              <div 
-                className="fixed inset-0 z-[9999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+              <div
+                className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto p-4 sm:p-6"
                 style={{ transform: 'translateZ(0)' }}
               >
                 {/* Backdrop Layer */}
@@ -194,27 +233,28 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.22, ease: 'easeOut' }}
-                  className="fixed inset-0 bg-black/80 backdrop-blur-[2px] -z-10 cursor-pointer"
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                  className="fixed inset-0 -z-10 cursor-pointer bg-black/85 backdrop-blur-[2px]"
                   onClick={() => setLightboxIndex(null)}
                 />
 
                 {/* Modal Container Wrapper */}
                 <m.div
-                  initial={{ opacity: 0, scale: 0.94, y: 12 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.95, y: 8 }}
-                  transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
-                  className="relative w-full max-w-3xl lg:max-w-4xl flex flex-col items-center gap-5 my-auto z-10"
+                  initial={{ opacity: 0, scale: 0.96 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.96 }}
+                  transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative z-10 my-auto flex w-full max-w-3xl transform-gpu flex-col items-center gap-4 will-change-transform sm:gap-5 lg:max-w-4xl"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {/* Photo-First Editorial Card */}
-                  <div className="relative w-full aspect-video bg-zinc-950 border border-white/15 rounded-[24px] sm:rounded-[28px] overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.95)]">
+                  <div className="relative aspect-video w-full transform-gpu overflow-hidden rounded-[20px] border border-white/15 bg-zinc-950 shadow-2xl sm:rounded-[28px] sm:shadow-[0_25px_80px_rgba(0,0,0,0.95)]">
                     <Image
                       src={gallery[lightboxIndex].src}
                       alt={gallery[lightboxIndex].alt}
                       fill
                       priority
+                      quality={85}
                       sizes="(max-width: 768px) 100vw, 1200px"
                       className="object-cover"
                     />
@@ -222,69 +262,57 @@ export function ProjectGallery({ project }: { project: ProjectData }) {
                     {/* Refined Minimalist Close Button */}
                     <button
                       onClick={() => setLightboxIndex(null)}
-                      className="absolute top-4 right-4 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-black/45 hover:bg-black/75 border border-white/15 hover:border-white/30 text-zinc-300 hover:text-white backdrop-blur-md transition-all duration-200 cursor-pointer shadow-lg hover:scale-105"
+                      className="absolute top-3.5 right-3.5 z-20 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-black/55 text-zinc-300 shadow-lg backdrop-blur-md transition-all duration-200 hover:scale-105 hover:border-white/30 hover:bg-black/80 hover:text-white active:scale-95 sm:top-4 sm:right-4"
                       aria-label="Close modal"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="h-4 w-4" />
                     </button>
 
                     {/* Seamless Gradient Blend Overlay at Bottom (No hard lines or borders) */}
-                    <div className="absolute inset-x-0 bottom-0 h-28 sm:h-36 bg-gradient-to-t from-black/90 via-black/45 to-transparent pointer-events-none z-10" />
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-24 bg-gradient-to-t from-black/90 via-black/45 to-transparent sm:h-36" />
 
                     {/* Caption Text Content seamlessly integrated */}
-                    <div className="absolute inset-x-0 bottom-0 z-20 px-6 py-5 sm:px-8 sm:py-6 flex items-end">
-                      {/* Judul: Diperkecil agar lebih proporsional di mobile */}
-                      <m.h3 
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ delay: 0.1, duration: 0.25 }}
-                        className="text-sm xs:text-base sm:text-lg md:text-xl font-bold tracking-tight text-white leading-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
-                      >
+                    <div className="absolute inset-x-0 bottom-0 z-20 flex items-end px-5 py-4 sm:px-8 sm:py-6">
+                      <h3 className="xs:text-base text-sm leading-tight font-bold tracking-tight text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] sm:text-lg md:text-xl">
                         {gallery[lightboxIndex].alt}
-                      </m.h3>
+                      </h3>
                     </div>
                   </div>
 
                   {/* Navigation Controls Floating OUTSIDE the Modal Card */}
-                  <m.div 
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ delay: 0.28, duration: 0.25 }}
-                    className="flex items-center justify-center gap-3 sm:gap-4"
-                  >
+                  <div className="flex items-center justify-center gap-3 sm:gap-4">
                     <button
                       onClick={handleLightboxPrev}
-                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md"
+                      className="flex h-10 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-zinc-900/90 text-zinc-300 shadow-xl backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-800 hover:text-white active:scale-95 sm:h-11 sm:w-11"
                       aria-label="Previous design"
                     >
-                      <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
 
-                    <div className="w-24 sm:w-28 h-10 sm:h-11 flex items-center justify-center gap-2 font-mono text-xs sm:text-sm text-zinc-400 bg-zinc-900/90 border border-white/15 rounded-full shadow-xl select-none backdrop-blur-md tabular-nums flex-shrink-0">
-                      <span className="w-4 sm:w-5 text-center text-white font-bold">{String(lightboxIndex + 1).padStart(2, '0')}</span>
+                    <div className="flex h-10 w-24 flex-shrink-0 items-center justify-center gap-2 rounded-full border border-white/15 bg-zinc-900/90 font-mono text-xs text-zinc-400 tabular-nums shadow-xl backdrop-blur-md select-none sm:h-11 sm:w-28 sm:text-sm">
+                      <span className="w-4 text-center font-bold text-white sm:w-5">
+                        {String(lightboxIndex + 1).padStart(2, '0')}
+                      </span>
                       <span className="text-zinc-600">/</span>
-                      <span className="w-4 sm:w-5 text-center">{String(gallery.length).padStart(2, '0')}</span>
+                      <span className="w-4 text-center sm:w-5">
+                        {String(gallery.length).padStart(2, '0')}
+                      </span>
                     </div>
 
                     <button
                       onClick={handleLightboxNext}
-                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-zinc-900/90 hover:bg-zinc-800 border border-white/15 text-zinc-300 hover:text-white transition-all hover:scale-105 active:scale-95 cursor-pointer flex-shrink-0 flex items-center justify-center shadow-xl backdrop-blur-md"
+                      className="flex h-10 w-10 flex-shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/15 bg-zinc-900/90 text-zinc-300 shadow-xl backdrop-blur-md transition-all hover:scale-105 hover:bg-zinc-800 hover:text-white active:scale-95 sm:h-11 sm:w-11"
                       aria-label="Next design"
                     >
-                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                     </button>
-                  </m.div>
-
+                  </div>
                 </m.div>
-
               </div>
             )}
           </AnimatePresence>,
           document.body
         )}
-
     </section>
   );
 }
