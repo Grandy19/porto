@@ -5,6 +5,7 @@ import { motion as m, AnimatePresence } from 'framer-motion';
 import { engine } from './preloader/audio-engine';
 import { WelcomeScreen } from './welcome-screen';
 import { LegoPreloader } from './preloader/lego-preloader';
+import { setPreloaderCompleteState } from '@/hooks/use-preloader-status';
 
 type GlobalPreloaderState = 'welcome' | 'loading' | 'complete';
 
@@ -81,6 +82,7 @@ export function Preloader() {
       document.documentElement.style.overscrollBehavior = '';
       document.body.style.overscrollBehavior = '';
       document.documentElement.removeAttribute('data-preloader-active');
+      setPreloaderCompleteState(true);
       window.dispatchEvent(
         new CustomEvent('preloader-stage', { detail: { stage: 'complete' } })
       );
