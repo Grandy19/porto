@@ -51,4 +51,11 @@ export const certifications: Certification[] = [
     pdfUrl: '/[D4SIKC48-02][707012400031]_SERTIFIKAT LOMBA.pdf',
     verificationUrl: '/[D4SIKC48-02][707012400031]_SERTIFIKAT LOMBA.pdf',
   },
+  {
+    id: 'sertif-7',
+    title: 'Sertifikat Asprak',
+    image: '/sertif7.jpg',
+    pdfUrl: '/sertif7.pdf',
+    verificationUrl: '/sertif7.pdf',
+  },
 ];
