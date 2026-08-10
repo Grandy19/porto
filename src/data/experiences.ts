@@ -27,7 +27,7 @@ export const experiences: Experience[] = [
     description:
       'Led student initiatives, coordinated organizational programs, and supported strategic leadership across the representative board.',
     story:
-      'Served as the Vice Chairman of the Student Representative Board (BPM SIKC), overseeing internal governance, legislation, and student advocacy across the institution.',
+      'Led student representation, internal governance, and academic advocacy initiatives as Vice Chairman of BPM SIKC.',
     skills: [
       'Strategic Leadership',
       'Public Policy',
@@ -53,7 +53,7 @@ export const experiences: Experience[] = [
     description:
       'Designed an innovative user experience recognized for creativity, usability, and real-world problem solving.',
     story:
-      "Awarded 'The Best Innovation' for conceptualizing and prototyping an inclusive digital product focused on accessible education and assistive technology.",
+      'Awarded "The Best Innovation" for an inclusive digital solution focused on healthcare and accessibility for children with special needs.',
     skills: [
       'User Research',
       'Interactive Prototyping',
@@ -104,7 +104,7 @@ export const experiences: Experience[] = [
     description:
       'Mentored students in user-centered design, prototyping, and usability evaluation during practical sessions.',
     story:
-      'Guided 60+ university students in mastering Human-Computer Interaction (HCI) methodologies, heuristic evaluations, Figma prototyping, and design thinking workflows.',
+      'Guided students through user experience principles and supported practical activities in designing intuitive digital experiences.',
     skills: [
       'HCI Methodologies',
       'Figma',
@@ -129,7 +129,7 @@ export const experiences: Experience[] = [
     description:
       'Collaborated to design and develop an inclusive digital platform for children with special needs.',
     story:
-      'Engineered an accessible web platform designed to assist parents, educators, and therapists in tracking developmental milestones and educational exercises for children.',
+      'A web platform helping parents discover and compare kindergartens, preschools, and daycare services based on their needs.',
     skills: ['React', 'Tailwind CSS', 'Accessibility (a11y)', 'User Testing'],
     highlights: [
       'Built accessible UI with WCAG AA standards',
@@ -150,7 +150,7 @@ export const experiences: Experience[] = [
     description:
       'Mentored students in web development fundamentals, frontend implementation, and practical programming concepts.',
     story:
-      'Conducted practical lab sessions covering modern frontend architectures, responsive design, JavaScript ES6+, API integration, and standard Git collaboration practices.',
+      'Guided students through practical web programming concepts and supported their journey in building modern, responsive web applications.',
     skills: ['JavaScript', 'HTML/CSS', 'Git Workflow', 'Frontend Architecture'],
     highlights: [
       'Conducted 14+ hands-on coding lab sessions',
