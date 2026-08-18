@@ -8,11 +8,25 @@ export type Certification = {
 
 export const certifications: Certification[] = [
   {
+    id: 'sertif-6',
+    title: 'Sertifikat Lomba',
+    image: '/sertif6.png',
+    pdfUrl: '/[D4SIKC48-02][707012400031]_SERTIFIKAT LOMBA.pdf',
+    verificationUrl: '/[D4SIKC48-02][707012400031]_SERTIFIKAT LOMBA.pdf',
+  },
+  {
     id: 'sertif-1',
-    title: 'Sertifikat Visualisasi Data',
-    image: '/sertif1.jpg',
-    pdfUrl: '/sertifikat_visualisasi data.pdf',
-    verificationUrl: '/sertifikat_visualisasi data.pdf',
+    title: 'Sertifikat Asprak Webpro',
+    image: '/sertif8.jpg',
+    pdfUrl: '/sertif8.pdf',
+    verificationUrl: '/sertif8.pdf',
+  },
+  {
+    id: 'sertif-7',
+    title: 'Sertifikat Asprak',
+    image: '/sertif7.jpg',
+    pdfUrl: '/sertif7.pdf',
+    verificationUrl: '/sertif7.pdf',
   },
   {
     id: 'sertif-2',
@@ -29,13 +43,6 @@ export const certifications: Certification[] = [
     verificationUrl: '/sertifikat belajar dasar data science.pdf',
   },
   {
-    id: 'sertif-4',
-    title: 'Sertifikat Belajar Dasar AI',
-    image: '/sertif4.jpg',
-    pdfUrl: '/sertifikat belajar dasar ai.pdf',
-    verificationUrl: '/sertifikat belajar dasar ai.pdf',
-  },
-  {
     id: 'sertif-5',
     title: 'Sertifikasi Awareness AI',
     image: '/sertif5.jpg',
@@ -43,19 +50,5 @@ export const certifications: Certification[] = [
       '/SertifikasiAwarenessAI_707012400031_Sitomorang Grandy Alexander.pdf',
     verificationUrl:
       '/SertifikasiAwarenessAI_707012400031_Sitomorang Grandy Alexander.pdf',
-  },
-  {
-    id: 'sertif-6',
-    title: 'Sertifikat Lomba',
-    image: '/sertif6.png',
-    pdfUrl: '/[D4SIKC48-02][707012400031]_SERTIFIKAT LOMBA.pdf',
-    verificationUrl: '/[D4SIKC48-02][707012400031]_SERTIFIKAT LOMBA.pdf',
-  },
-  {
-    id: 'sertif-7',
-    title: 'Sertifikat Asprak',
-    image: '/sertif7.jpg',
-    pdfUrl: '/sertif7.pdf',
-    verificationUrl: '/sertif7.pdf',
   },
 ];
