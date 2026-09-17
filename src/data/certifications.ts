@@ -36,11 +36,11 @@ export const certifications: Certification[] = [
     verificationUrl: '/sertifikat_javascript.pdf',
   },
   {
-    id: 'sertif-3',
-    title: 'Sertifikat Belajar Dasar Data Science',
-    image: '/sertif3.jpg',
-    pdfUrl: '/sertifikat belajar dasar data science.pdf',
-    verificationUrl: '/sertifikat belajar dasar data science.pdf',
+    id: 'sertif-31',
+    title: 'Sertifikat IWPaint',
+    image: '/sertif31.jpg',
+    pdfUrl: '/sertifikat iwpaint.pdf',
+    verificationUrl: '/sertifikat iwpaint.pdf',
   },
   {
     id: 'sertif-5',
