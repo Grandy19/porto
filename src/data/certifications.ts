@@ -36,9 +36,9 @@ export const certifications: Certification[] = [
     verificationUrl: '/sertifikat_javascript.pdf',
   },
   {
-    id: 'sertif-31',
+    id: 'sertif-33',
     title: 'Sertifikat IWPaint',
-    image: '/sertif31.jpg',
+    image: '/sertif33.jpg',
     pdfUrl: '/sertifikat iwpaint.pdf',
     verificationUrl: '/sertifikat iwpaint.pdf',
   },
